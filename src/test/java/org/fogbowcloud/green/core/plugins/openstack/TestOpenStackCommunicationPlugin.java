@@ -3,6 +3,8 @@ package org.fogbowcloud.green.core.plugins.openstack;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.fogbowcloud.green.server.core.plugins.openstack.copy.HypervisorTestImpl;
+import org.fogbowcloud.green.server.core.plugins.openstack.copy.OpenStackCommunicationPlugin;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
