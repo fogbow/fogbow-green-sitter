@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 
 public class TurnOff {
 
-	public static String executeCommand(String command) {
+	private static String executeCommand(String command) {
 		StringBuilder sb = new StringBuilder();
 		String[] commands = new String[] { "/bin/sh", "-c", command };
 		try {
@@ -34,16 +34,18 @@ public class TurnOff {
 	}
 
 	public void hibernate() throws RuntimeException, IOException {
-		String hibernateCommand;
+		String hibernateCommand="";
 		String operatingSystem = System.getProperty("os.name");
 
 		if ("Linux".equals(operatingSystem)
 				|| "Mac OS X".equals(operatingSystem)) {
 			hibernateCommand = "/usr/bin/dbus-send --system --print-reply --dest='org.freedesktop.UPower' /org/freedesktop/UPower org.freedesktop.UPower.Suspend";
-			if (executeCommand("service nova status").contains("running")) {
-				executeCommand(hibernateCommand);
-			}
+		}
+			
+		if (executeCommand("sudo service nova-compute status").contains("running")) {
+			executeCommand(hibernateCommand);
 		}
 	}
+
 
 }

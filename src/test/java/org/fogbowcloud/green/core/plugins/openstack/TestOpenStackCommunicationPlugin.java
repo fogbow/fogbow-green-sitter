@@ -1,12 +1,9 @@
 package org.fogbowcloud.green.core.plugins.openstack;
 
-import java.util.LinkedList;
+
 import java.util.List;
 
-import org.fogbowcloud.green.server.core.plugins.openstack.copy.HypervisorTestImpl;
-import org.fogbowcloud.green.server.core.plugins.openstack.copy.OpenStackCommunicationPlugin;
-import org.junit.Assert;
-import org.junit.Test;
+
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -17,22 +14,7 @@ import org.openstack4j.model.compute.ext.Hypervisor;
 
 public class TestOpenStackCommunicationPlugin {
 
-	@Test
-	public void testgetHostInformation() {
-		final List<Hypervisor> hvs = new LinkedList<Hypervisor>();
-		HypervisorTestImpl h = new HypervisorTestImpl();
-		h.setHostname("hostname1");
-		hvs.add(h);
-
-		OSClient os = createComputeMock(hvs);
-
-		OpenStackCommunicationPlugin oscp = new OpenStackCommunicationPlugin(os);
-		List<? extends Hypervisor> hostInfo = oscp.getHostInformation();
-		Assert.assertEquals(1, hostInfo.size());
-		Assert.assertEquals("hostname1", hostInfo.get(0)
-				.getHypervisorHostname());
-	}
-
+	
 	private OSClient createComputeMock(final List<Hypervisor> hvs) {
 		OSClient os = Mockito.mock(OSClient.class);
 		ComputeService compute = Mockito.mock(ComputeService.class);
