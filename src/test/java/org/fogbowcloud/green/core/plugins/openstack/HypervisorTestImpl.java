@@ -1,4 +1,4 @@
-package org.fogbowcloud.green.server.core.plugins.openstack;
+package org.fogbowcloud.green.core.plugins.openstack;
 
 import org.openstack4j.model.compute.ext.Hypervisor;
 
@@ -10,9 +10,13 @@ public class HypervisorTestImpl implements Hypervisor {
 	private static final long serialVersionUID = 4421687515550026956L;
 
 	private String hostname;
+	int runningVM;
 	
 	public void setHostname(String hostname) {
 		this.hostname = hostname;
+	}
+	public void setRunningVM(int runningVM){
+		this.runningVM = runningVM;
 	}
 	
 	@Override
@@ -76,8 +80,7 @@ public class HypervisorTestImpl implements Hypervisor {
 
 	@Override
 	public int getVirtualCPU() {
-		// TODO Auto-generated method stub
-		return 0;
+		return runningVM;
 	}
 
 	@Override

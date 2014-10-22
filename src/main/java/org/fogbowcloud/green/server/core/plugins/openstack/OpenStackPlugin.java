@@ -14,7 +14,7 @@ import org.openstack4j.model.compute.ext.AvailabilityZones.AvailabilityZone;
 import org.openstack4j.model.compute.ext.AvailabilityZones.NovaService;
 import org.openstack4j.model.compute.ext.Hypervisor;
 
-public class OpenStackCommunicationPlugin implements Plugin {
+public class OpenStackPlugin implements Plugin {
 
 	private OSClient os;
 	private HashMap<String, Integer> runningVM;
@@ -22,7 +22,7 @@ public class OpenStackCommunicationPlugin implements Plugin {
 	private HashMap<String, Boolean> novaEnable;
 	private HashMap<String, Boolean> novaRunning;
 
-	public OpenStackCommunicationPlugin(String endpoint, String username,
+	public OpenStackPlugin(String endpoint, String username,
 			String password, String tenantname) {
 
 		this(OSFactory.builder().endpoint(endpoint)
@@ -30,7 +30,7 @@ public class OpenStackCommunicationPlugin implements Plugin {
 				.authenticate());
 	}
 
-	public OpenStackCommunicationPlugin(OSClient os) {
+	public OpenStackPlugin(OSClient os) {
 		this.os = os;
 	}
 
@@ -131,24 +131,5 @@ public class OpenStackCommunicationPlugin implements Plugin {
 		return hosts;
 	}
 
-	public Host UpdateHost(Host host) {
-		this.setHostsName();
-		this.setRunningVM();
-		this.setNovaEnable(this.hostsName);
-		this.setNovaRunning(this.hostsName);
-		try {
-			int runningVM = this.runningVM.get(host.getName());
-			boolean novaRunning = this.novaRunning.get(host.getName());
-			boolean novaEnable = this.novaEnable.get(host.getName());
-			Date updateTime = new Date();
-			updateTime.getTime();
-			host.setNovaEnable(novaEnable);
-			host.setNovaRunning(novaRunning);
-			host.setRunningVM(runningVM);
-			host.setUpdateTime(updateTime);
-		} catch (Exception e) {
-		}
-		return host;
-	}
 
 }
