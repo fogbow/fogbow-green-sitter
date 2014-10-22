@@ -6,5 +6,5 @@ import org.fogbowcloud.green.server.core.Host;
 
 public interface Plugin {
 	public List<? extends Host> getHostInformation();
-	public Host updateHost(Host host);
+	public Host UpdateHost(Host host);
 }

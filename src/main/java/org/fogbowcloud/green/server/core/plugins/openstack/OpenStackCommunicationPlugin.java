@@ -131,7 +131,7 @@ public class OpenStackCommunicationPlugin implements Plugin {
 		return hosts;
 	}
 
-	public Host updateHost(Host host) {
+	public Host UpdateHost(Host host) {
 		this.setHostsName();
 		this.setRunningVM();
 		this.setNovaEnable(this.hostsName);
