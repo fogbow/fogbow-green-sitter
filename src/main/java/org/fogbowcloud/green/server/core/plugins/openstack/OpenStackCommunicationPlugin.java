@@ -1,5 +1,6 @@
 package org.fogbowcloud.green.server.core.plugins.openstack;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,7 +19,8 @@ public class OpenStackCommunicationPlugin implements Plugin {
 	private OSClient os;
 	private HashMap<String, Integer> runningVM;
 	private LinkedList<String> hostsName;
-	private HashMap<String, HashMap<String, String>> novaStatus;
+	private HashMap<String, Boolean> novaEnable;
+	private HashMap<String, Boolean> novaRunning;
 
 	public OpenStackCommunicationPlugin(String endpoint, String username,
 			String password, String tenantname) {
@@ -52,23 +54,26 @@ public class OpenStackCommunicationPlugin implements Plugin {
 		}
 	}
 
-	private void setNovaStatus(LinkedList<String> hostsName) {
+	private void setNovaEnable(LinkedList<String> hostsName) {
 		ZoneService zones = os.compute().zones();
 		HashMap<String, ? extends NovaService> hostService;
 		NovaService ns;
-		this.novaStatus = new HashMap<String, HashMap<String, String>>();
+		this.novaEnable = new HashMap<String, Boolean>();
 		List<? extends AvailabilityZone> availabilityZoneList = zones
 				.getAvailabilityZones().getAvailabilityZoneList();
 
 		for (AvailabilityZone availabilityZone : availabilityZoneList) {
 			for (String host : hostsName) {
 				try {
-					hostService = availabilityZone.getHosts().get(host.toLowerCase());
+					hostService = availabilityZone.getHosts().get(
+							host.toLowerCase());
 					ns = hostService.get("nova-compute");
 					if ((hostService != null) && (ns != null)) {
-						HashMap<String, String> service = new HashMap<String, String>();
-						service.put(ns.getStatusActive(),ns.getAvailable());
-						this.novaStatus.put(host, service);
+						String s = ns.getAvailable();
+						if (s.equals("true"))
+							this.novaEnable.put(host, true);
+						else
+							this.novaEnable.put(host, false);
 					}
 				} catch (Exception e) {
 				}
@@ -76,13 +81,74 @@ public class OpenStackCommunicationPlugin implements Plugin {
 		}
 	}
 
-	public List<? extends Host> getHostInformation() {
+	private void setNovaRunning(LinkedList<String> hostsName) {
+		ZoneService zones = os.compute().zones();
+		HashMap<String, ? extends NovaService> hostService;
+		NovaService ns;
+		this.novaRunning = new HashMap<String, Boolean>();
+		List<? extends AvailabilityZone> availabilityZoneList = zones
+				.getAvailabilityZones().getAvailabilityZoneList();
+
+		for (AvailabilityZone availabilityZone : availabilityZoneList) {
+			for (String host : hostsName) {
+				try {
+					hostService = availabilityZone.getHosts().get(
+							host.toLowerCase());
+					ns = hostService.get("nova-compute");
+					if ((hostService != null) && (ns != null)) {
+						String s = ns.getStatusActive();
+						if (s.equals("true"))
+							this.novaRunning.put(host, true);
+						else
+							this.novaRunning.put(host, false);
+					}
+				} catch (Exception e) {
+				}
+			}
+		}
+	}
+
+	public List<Host> getHostInformation() {
 		this.setHostsName();
 		this.setRunningVM();
-		this.setNovaStatus(hostsName);
-		System.out.println(hostsName);
-		System.out.println(novaStatus);
-		return null;
+		this.setNovaEnable(this.hostsName);
+		this.setNovaRunning(this.hostsName);
+		List<Host> hosts = new LinkedList<Host>();
+		for (String hostName : this.hostsName) {
+			try {
+				String name = hostName;
+				int runningVM = this.runningVM.get(hostName);
+				boolean novaRunning = this.novaRunning.get(hostName);
+				boolean novaEnable = this.novaEnable.get(hostName);
+				Date updateTime = new Date();
+				updateTime.getTime();
+				Host host = new Host(name, runningVM, novaEnable, novaRunning,
+						updateTime);
+				hosts.add(host);
+			} catch (Exception e) {
+			}
+		}
+		return hosts;
+	}
+
+	public Host updateHost(Host host) {
+		this.setHostsName();
+		this.setRunningVM();
+		this.setNovaEnable(this.hostsName);
+		this.setNovaRunning(this.hostsName);
+		try {
+			int runningVM = this.runningVM.get(host.getName());
+			boolean novaRunning = this.novaRunning.get(host.getName());
+			boolean novaEnable = this.novaEnable.get(host.getName());
+			Date updateTime = new Date();
+			updateTime.getTime();
+			host.setNovaEnable(novaEnable);
+			host.setNovaRunning(novaRunning);
+			host.setRunningVM(runningVM);
+			host.setUpdateTime(updateTime);
+		} catch (Exception e) {
+		}
+		return host;
 	}
 
 }
