@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.fogbowcloud.green.server.core.Host;
 import org.fogbowcloud.green.server.core.plugins.Plugin;
+import org.openstack4j.model.compute.ext.AvailabilityZones.ZoneState;
 import org.openstack4j.api.OSClient;
 import org.openstack4j.api.compute.ext.ZoneService;
 import org.openstack4j.openstack.OSFactory;
@@ -22,8 +23,8 @@ public class OpenStackPlugin implements Plugin {
 	private HashMap<String, Boolean> novaEnable;
 	private HashMap<String, Boolean> novaRunning;
 
-	public OpenStackPlugin(String endpoint, String username,
-			String password, String tenantname) {
+	public OpenStackPlugin(String endpoint, String username, String password,
+			String tenantname) {
 
 		this(OSFactory.builder().endpoint(endpoint)
 				.credentials(username, password).tenantName(tenantname)
@@ -63,19 +64,23 @@ public class OpenStackPlugin implements Plugin {
 				.getAvailabilityZones().getAvailabilityZoneList();
 
 		for (AvailabilityZone availabilityZone : availabilityZoneList) {
-			for (String host : hostsName) {
-				try {
-					hostService = availabilityZone.getHosts().get(
-							host.toLowerCase());
-					ns = hostService.get("nova-compute");
-					if ((hostService != null) && (ns != null)) {
-						String s = ns.getAvailable();
-						if (s.equals("true"))
-							this.novaEnable.put(host, true);
-						else
-							this.novaEnable.put(host, false);
+			ZoneState zoneState = availabilityZone.getZoneState();
+			if (zoneState.getAvailable()) {
+				for (String host : hostsName) {
+					try {
+						hostService = availabilityZone.getHosts().get(
+								host.toLowerCase());
+						ns = hostService.get("nova-compute");
+						if ((hostService != null) && (ns != null)) {
+							String s = ns.getAvailable();
+							if (s.equals("true"))
+								this.novaEnable.put(host, true);
+							else
+								this.novaEnable.put(host, false);
+						}
+					} catch (Exception e) {
 					}
-				} catch (Exception e) {
+
 				}
 			}
 		}
@@ -90,19 +95,23 @@ public class OpenStackPlugin implements Plugin {
 				.getAvailabilityZones().getAvailabilityZoneList();
 
 		for (AvailabilityZone availabilityZone : availabilityZoneList) {
-			for (String host : hostsName) {
-				try {
-					hostService = availabilityZone.getHosts().get(
-							host.toLowerCase());
-					ns = hostService.get("nova-compute");
-					if ((hostService != null) && (ns != null)) {
-						String s = ns.getStatusActive();
-						if (s.equals("true"))
-							this.novaRunning.put(host, true);
-						else
-							this.novaRunning.put(host, false);
+			ZoneState zoneState = availabilityZone.getZoneState();
+			if (zoneState.getAvailable()) {
+				for (String host : hostsName) {
+					try {
+						hostService = availabilityZone.getHosts().get(
+								host.toLowerCase());
+						ns = hostService.get("nova-compute");
+						if ((hostService != null) && (ns != null)) {
+							String s = ns.getStatusActive();
+							if (s.equals("true"))
+								this.novaRunning.put(host, true);
+							else
+								this.novaRunning.put(host, false);
+						}
+					} catch (Exception e) {
 					}
-				} catch (Exception e) {
+
 				}
 			}
 		}
@@ -130,6 +139,5 @@ public class OpenStackPlugin implements Plugin {
 		}
 		return hosts;
 	}
-
 
 }

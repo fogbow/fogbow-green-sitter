@@ -85,20 +85,26 @@ public class TestOpenStackPlugin {
 
 	@Test
 	public void testUnavailableZone() {
-		HashMap hostsZone = new HashMap<String, HashMap<String, ? extends NovaService>>();
-		hostsZone.put("host1", NovaService.class);
+		Map<String, HashMap<String, ? extends NovaService>> servicesPerHost = new HashMap<String, HashMap<String, ? extends NovaService>>();
+		HashMap<String, NovaService> services = new HashMap<String, NovaService>();
+		services.put("nova-compute", new AvailabilityZoneImpl.NovaServiceImpl("true", "true", new Date()));
+		servicesPerHost.put("host1", services);
+		
+		HypervisorTestImpl hp = new HypervisorTestImpl();
+		hp.setHostname("host1");
+		hp.setRunningVM(1);
+		LinkedList<Hypervisor>hpList = new LinkedList<Hypervisor>();
+		hpList.add(hp);
 		AvailabilityZoneImpl zone = new AvailabilityZoneImpl(
-				new AvailabilityZoneImpl.ZoneStateImpl(false), hostsZone,
+				new AvailabilityZoneImpl.ZoneStateImpl(false), servicesPerHost,
 				"Zone");
 		LinkedList<AvailabilityZone> zones = new LinkedList<AvailabilityZones.AvailabilityZone>();
 		zones.add(zone);
-
-		OSClient osClient = createOSClientMock(new LinkedList<Hypervisor>(),
-				zones);
+		OSClient osClient = createOSClientMock(hpList, zones);
 		OpenStackPlugin plugin = new OpenStackPlugin(
 				osClient);
-		List<Host> hosts1 = plugin.getHostInformation();
-		Assert.assertTrue(hosts1.isEmpty());
+		List<Host> hosts = plugin.getHostInformation();
+		Assert.assertTrue(hosts.isEmpty());
 	}
 
 	@Test
@@ -135,6 +141,33 @@ public class TestOpenStackPlugin {
 				"Zone");
 		LinkedList<AvailabilityZone> zones = new LinkedList<AvailabilityZones.AvailabilityZone>();
 		zones.add(zone);
+		OSClient osClient = createOSClientMock(hpList, zones);
+		OpenStackPlugin plugin = new OpenStackPlugin(
+				osClient);
+		List<Host> hosts = plugin.getHostInformation();
+		Assert.assertEquals(1, hosts.size());
+	}
+	
+	@Test
+	public void testHostWithComputerinDifferentZones(){
+		Map<String, HashMap<String, ? extends NovaService>> servicesPerHost = new HashMap<String, HashMap<String, ? extends NovaService>>();
+		HashMap<String, NovaService> services = new HashMap<String, NovaService>();
+		services.put("nova-compute", new AvailabilityZoneImpl.NovaServiceImpl("true", "true", new Date()));
+		servicesPerHost.put("host1", services);
+		HypervisorTestImpl hp = new HypervisorTestImpl();
+		hp.setHostname("host1");
+		hp.setRunningVM(1);
+		LinkedList<Hypervisor>hpList = new LinkedList<Hypervisor>();
+		hpList.add(hp);
+		AvailabilityZoneImpl zone = new AvailabilityZoneImpl(
+				new AvailabilityZoneImpl.ZoneStateImpl(true), servicesPerHost,
+				"Zone");
+		AvailabilityZoneImpl zone2 = new AvailabilityZoneImpl(
+				new AvailabilityZoneImpl.ZoneStateImpl(true), servicesPerHost,
+				"Zone");
+		LinkedList<AvailabilityZone> zones = new LinkedList<AvailabilityZones.AvailabilityZone>();
+		zones.add(zone);
+		zones.add(zone2);
 		OSClient osClient = createOSClientMock(hpList, zones);
 		OpenStackPlugin plugin = new OpenStackPlugin(
 				osClient);
