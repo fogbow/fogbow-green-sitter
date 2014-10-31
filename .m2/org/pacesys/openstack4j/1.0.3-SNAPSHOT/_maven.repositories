@@ -1,0 +1,6 @@
+#NOTE: This is an internal implementation file, its format can be changed without prior notice.
+#Mon Oct 20 10:17:52 BRT 2014
+openstack4j-1.0.3-SNAPSHOT-withdeps.jar>=
+openstack4j-1.0.3-SNAPSHOT.jar>=
+openstack4j-1.0.3-SNAPSHOT-sources.jar>=
+openstack4j-1.0.3-SNAPSHOT.pom>=
