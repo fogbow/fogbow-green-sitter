@@ -4,6 +4,6 @@ import java.util.List;
 
 import org.fogbowcloud.green.server.core.Host;
 
-public interface Plugin {
+public interface CloudInfoPlugin {
 	public List<? extends Host> getHostInformation();
 }

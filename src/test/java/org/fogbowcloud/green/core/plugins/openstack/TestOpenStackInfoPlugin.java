@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.fogbowcloud.green.server.core.Host;
-import org.fogbowcloud.green.server.core.plugins.openstack.OpenStackPlugin;
+import org.fogbowcloud.green.server.core.plugins.openstack.OpenStackInfoPlugin;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -22,7 +22,7 @@ import org.openstack4j.model.compute.ext.AvailabilityZones.AvailabilityZone;
 import org.openstack4j.model.compute.ext.AvailabilityZones.NovaService;
 import org.openstack4j.model.compute.ext.Hypervisor;
 
-public class TestOpenStackPlugin {
+public class TestOpenStackInfoPlugin {
 
 	private OSClient createOSClientMock(final List<Hypervisor> hvs,
 			final List<AvailabilityZone> zones) {
@@ -60,7 +60,7 @@ public class TestOpenStackPlugin {
 	public void testNoZones() {
 		OSClient osClient = createOSClientMock(new LinkedList<Hypervisor>(),
 				new LinkedList<AvailabilityZones.AvailabilityZone>());
-		OpenStackPlugin plugin = new OpenStackPlugin(
+		OpenStackInfoPlugin plugin = new OpenStackInfoPlugin(
 				osClient);
 		List<Host> hosts = plugin.getHostInformation();
 		Assert.assertTrue(hosts.isEmpty());
@@ -77,7 +77,7 @@ public class TestOpenStackPlugin {
 
 		OSClient osClient = createOSClientMock(new LinkedList<Hypervisor>(),
 				zones);
-		OpenStackPlugin plugin = new OpenStackPlugin(
+		OpenStackInfoPlugin plugin = new OpenStackInfoPlugin(
 				osClient);
 		List<Host> hosts = plugin.getHostInformation();
 		Assert.assertTrue(hosts.isEmpty());
@@ -101,7 +101,7 @@ public class TestOpenStackPlugin {
 		LinkedList<AvailabilityZone> zones = new LinkedList<AvailabilityZones.AvailabilityZone>();
 		zones.add(zone);
 		OSClient osClient = createOSClientMock(hpList, zones);
-		OpenStackPlugin plugin = new OpenStackPlugin(
+		OpenStackInfoPlugin plugin = new OpenStackInfoPlugin(
 				osClient);
 		List<Host> hosts = plugin.getHostInformation();
 		Assert.assertTrue(hosts.isEmpty());
@@ -118,7 +118,7 @@ public class TestOpenStackPlugin {
 
 		OSClient osClient = createOSClientMock(new LinkedList<Hypervisor>(),
 				zones);
-		OpenStackPlugin plugin = new OpenStackPlugin(
+		OpenStackInfoPlugin plugin = new OpenStackInfoPlugin(
 				osClient);
 		List<Host> hosts = plugin.getHostInformation();
 		Assert.assertTrue(hosts.isEmpty());
@@ -142,7 +142,7 @@ public class TestOpenStackPlugin {
 		LinkedList<AvailabilityZone> zones = new LinkedList<AvailabilityZones.AvailabilityZone>();
 		zones.add(zone);
 		OSClient osClient = createOSClientMock(hpList, zones);
-		OpenStackPlugin plugin = new OpenStackPlugin(
+		OpenStackInfoPlugin plugin = new OpenStackInfoPlugin(
 				osClient);
 		List<Host> hosts = plugin.getHostInformation();
 		Assert.assertEquals(1, hosts.size());
@@ -169,7 +169,7 @@ public class TestOpenStackPlugin {
 		zones.add(zone);
 		zones.add(zone2);
 		OSClient osClient = createOSClientMock(hpList, zones);
-		OpenStackPlugin plugin = new OpenStackPlugin(
+		OpenStackInfoPlugin plugin = new OpenStackInfoPlugin(
 				osClient);
 		List<Host> hosts = plugin.getHostInformation();
 		Assert.assertEquals(1, hosts.size());

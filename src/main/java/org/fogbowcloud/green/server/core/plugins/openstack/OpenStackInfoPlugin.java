@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.fogbowcloud.green.server.core.Host;
-import org.fogbowcloud.green.server.core.plugins.Plugin;
+import org.fogbowcloud.green.server.core.plugins.CloudInfoPlugin;
 import org.openstack4j.model.compute.ext.AvailabilityZones.ZoneState;
 import org.openstack4j.api.OSClient;
 import org.openstack4j.api.compute.ext.ZoneService;
@@ -15,15 +15,17 @@ import org.openstack4j.model.compute.ext.AvailabilityZones.AvailabilityZone;
 import org.openstack4j.model.compute.ext.AvailabilityZones.NovaService;
 import org.openstack4j.model.compute.ext.Hypervisor;
 
-public class OpenStackPlugin implements Plugin {
+public class OpenStackInfoPlugin implements CloudInfoPlugin {
 
 	private OSClient os;
 	private HashMap<String, Integer> runningVM;
 	private LinkedList<String> hostsName;
 	private HashMap<String, Boolean> novaEnable;
 	private HashMap<String, Boolean> novaRunning;
+	private HashMap<String, Integer> availableRam;
+	private HashMap<String, Integer> availableCPU;
 
-	public OpenStackPlugin(String endpoint, String username, String password,
+	public OpenStackInfoPlugin(String endpoint, String username, String password,
 			String tenantname) {
 
 		this(OSFactory.builder().endpoint(endpoint)
@@ -31,7 +33,7 @@ public class OpenStackPlugin implements Plugin {
 				.authenticate());
 	}
 
-	public OpenStackPlugin(OSClient os) {
+	public OpenStackInfoPlugin(OSClient os) {
 		this.os = os;
 	}
 
@@ -45,6 +47,26 @@ public class OpenStackPlugin implements Plugin {
 		}
 	}
 
+	private void setAvailableRam() {
+		List<? extends Hypervisor> hypervisors = os.compute().hypervisors()
+				.list();
+		this.availableRam = new HashMap<String, Integer>();
+		for (Hypervisor hypervisor : hypervisors) {
+			this.availableRam.put(hypervisor.getHypervisorHostname(), new Integer(
+					hypervisor.getFreeRam()));
+		}
+	}
+	
+	private void setAvailableCPU() {
+		List<? extends Hypervisor> hypervisors = os.compute().hypervisors()
+				.list();
+		this.availableCPU = new HashMap<String, Integer>();
+		for (Hypervisor hypervisor : hypervisors) {
+			this.availableCPU.put(hypervisor.getHypervisorHostname(), new Integer(
+					hypervisor.getFreeDisk()));
+		}
+	}
+	
 	private void setRunningVM() {
 		List<? extends Hypervisor> hypervisors = os.compute().hypervisors()
 				.list();
@@ -116,10 +138,13 @@ public class OpenStackPlugin implements Plugin {
 			}
 		}
 	}
+	
 
 	public List<Host> getHostInformation() {
 		this.setHostsName();
 		this.setRunningVM();
+		this.setAvailableCPU();
+		this.setAvailableRam();
 		this.setNovaEnable(this.hostsName);
 		this.setNovaRunning(this.hostsName);
 		List<Host> hosts = new LinkedList<Host>();
@@ -131,8 +156,10 @@ public class OpenStackPlugin implements Plugin {
 				boolean novaEnable = this.novaEnable.get(hostName);
 				Date updateTime = new Date();
 				updateTime.getTime();
+				int availableRam = this.availableRam.get(hostName);
+				int availableCPU = this.availableCPU.get(hostName);
 				Host host = new Host(name, runningVM, novaEnable, novaRunning,
-						updateTime);
+						updateTime, availableRam, availableCPU);
 				hosts.add(host);
 			} catch (Exception e) {
 			}
