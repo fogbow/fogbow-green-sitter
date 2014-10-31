@@ -1,0 +1,5 @@
+#NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+#Fri Oct 31 15:42:04 BRT 2014
+openstack4j-2.0.0-SNAPSHOT-withdeps.jar>=
+openstack4j-2.0.0-SNAPSHOT.pom>=
+openstack4j-2.0.0-SNAPSHOT.jar>=
