@@ -1,5 +1,6 @@
 package org.fogbowcloud.green.server.core.greenStrategy;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -49,10 +50,19 @@ public class DefaultGreenStrategy implements GreenStrategy {
 				if (!this.napingHosts.contains(host))
 					this.napingHosts.add(host);
 			}
+		System.out.println(host.getUpdateTime());
 		}
 
 		for (Host host : this.napingHosts) {
-
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}  
+			Date d = new Date();
+			d.getTime();
+			
 		}
 
 	}
