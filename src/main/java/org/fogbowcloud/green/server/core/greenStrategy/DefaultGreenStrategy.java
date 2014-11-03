@@ -9,26 +9,16 @@ import org.fogbowcloud.green.server.core.Host;
 import org.fogbowcloud.green.server.core.plugins.CloudInfoPlugin;
 import org.fogbowcloud.green.server.core.plugins.openstack.OpenStackInfoPlugin;
 
-;
-
 public class DefaultGreenStrategy implements GreenStrategy {
 
-	CloudInfoPlugin openStackPlugin;
-	List<? extends Host> allHosts;
-	List<Host> napingHosts = new LinkedList<Host>();
-	List<Host> sleepingHosts = new LinkedList<Host>();
-
-	Properties cloudProperties;
+	private CloudInfoPlugin openStackPlugin;
+	private List<? extends Host> allHosts;
+	private List<Host> napingHosts = new LinkedList<Host>();
+	private List<Host> sleepingHosts = new LinkedList<Host>();
+	private Properties cloudProperties;
 
 	public DefaultGreenStrategy(Properties cloudProperties) {
 		this.cloudProperties = cloudProperties;
-	}
-
-	private void setAllHosts() {
-		this.allHosts = this.openStackPlugin.getHostInformation();
-	}
-
-	private void setOpenStackPlugin() {
 		openStackPlugin = new OpenStackInfoPlugin(cloudProperties.getProperty(
 				"prop.endpoint").toString(), cloudProperties.getProperty(
 				"prop.username").toString(), cloudProperties.get(
@@ -36,41 +26,42 @@ public class DefaultGreenStrategy implements GreenStrategy {
 				"prop.tenant").toString());
 	}
 
-	public void setOpenStackPlugin(CloudInfoPlugin openStackPlugin) {
+	public DefaultGreenStrategy(CloudInfoPlugin openStackPlugin) {
 		this.openStackPlugin = openStackPlugin;
 	}
 
-	public void SendIdleHostsToBed() {
-		this.setOpenStackPlugin();
-		this.setAllHosts();
+	private void setAllHosts() {
+		this.allHosts = this.openStackPlugin.getHostInformation();
+	}
 
+	public List<Host> getNapingHosts() {
+		return napingHosts;
+	}
+
+	public List<Host> getSleepingHosts() {
+		return sleepingHosts;
+	}
+
+	public void SendIdleHostsToBed() {
+		this.setAllHosts();
+	
 		for (Host host : this.allHosts) {
 			if (host.isNovaEnable() && host.isNovaRunning()
 					&& (host.getRunningVM() == 0)) {
 				if (!this.napingHosts.contains(host))
 					this.napingHosts.add(host);
 			}
-		System.out.println(host.getUpdateTime());
 		}
 
 		for (Host host : this.napingHosts) {
-			try {
-				Thread.sleep(3000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}  
 			Date d = new Date();
 			d.getTime();
-			
 		}
-
+		
 	}
 
 	public void WakeUpSleepingHost(int minCPU, int minRAM) {
 
 	}
-	
-
 
 }
