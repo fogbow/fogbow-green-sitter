@@ -154,8 +154,7 @@ public class OpenStackInfoPlugin implements CloudInfoPlugin {
 				int runningVM = this.runningVM.get(hostName);
 				boolean novaRunning = this.novaRunning.get(hostName);
 				boolean novaEnable = this.novaEnable.get(hostName);
-				Date updateTime = new Date();
-				updateTime.getTime();
+				long updateTime = new Date().getTime();
 				int availableRam = this.availableRam.get(hostName);
 				int availableCPU = this.availableCPU.get(hostName);
 				Host host = new Host(name, runningVM, novaEnable, novaRunning,

@@ -1,19 +1,18 @@
 package org.fogbowcloud.green.server.core;
 
-import java.util.Date;
-
 public class Host{
+	
 	
 	private String name;
 	private int runningVM;
 	private boolean novaRunning;
 	private boolean novaEnable;
-	private Date updateTime;
+	private long updateTime;
 	private int availableCPU;
 	private int availableRAM;
 	
 	public Host(String name, int runningVM, boolean novaRunning,
-			boolean novaEnable, Date updateTime, int availableCPU, int availableRAM) {
+			boolean novaEnable, long updateTime, int availableCPU, int availableRAM) {
 		super();
 		this.name = name;
 		this.runningVM = runningVM;
@@ -28,20 +27,8 @@ public class Host{
 		return availableCPU;
 	}
 
-	public void setAvailableCPU(int availableCPU) {
-		this.availableCPU = availableCPU;
-	}
-
 	public int getAvailableRAM() {
 		return availableRAM;
-	}
-
-	public void setAvailableRAM(int availableRAM) {
-		this.availableRAM = availableRAM;
-	}
-
-	public Date getUpdateTime() {
-		return updateTime;
 	}
 
 	public String getName() {
@@ -52,13 +39,42 @@ public class Host{
 		return runningVM;
 	}
 
+	public long getUpdateTime() {
+		return updateTime;
+	}
+
+	public boolean isNovaEnable() {
+		return novaEnable;
+	}
 
 	public boolean isNovaRunning() {
 		return novaRunning;
 	}
 
-	public boolean isNovaEnable() {
-		return novaEnable;
+
+	public void setAvailableCPU(int availableCPU) {
+		this.availableCPU = availableCPU;
+	}
+
+	public void setAvailableRAM(int availableRAM) {
+		this.availableRAM = availableRAM;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Host other = (Host) obj;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		return true;
 	}
 
 	@Override
