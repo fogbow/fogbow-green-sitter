@@ -25,8 +25,8 @@ public class OpenStackInfoPlugin implements CloudInfoPlugin {
 	private HashMap<String, Integer> availableRam;
 	private HashMap<String, Integer> availableCPU;
 
-	public OpenStackInfoPlugin(String endpoint, String username, String password,
-			String tenantname) {
+	public OpenStackInfoPlugin(String endpoint, String username,
+			String password, String tenantname) {
 
 		this(OSFactory.builder().endpoint(endpoint)
 				.credentials(username, password).tenantName(tenantname)
@@ -52,28 +52,29 @@ public class OpenStackInfoPlugin implements CloudInfoPlugin {
 				.list();
 		this.availableRam = new HashMap<String, Integer>();
 		for (Hypervisor hypervisor : hypervisors) {
-			this.availableRam.put(hypervisor.getHypervisorHostname(), new Integer(
-					hypervisor.getFreeRam()));
+			this.availableRam.put(hypervisor.getHypervisorHostname(),
+					Integer.valueOf(hypervisor.getFreeRam()));
 		}
 	}
-	
+
 	private void setAvailableCPU() {
 		List<? extends Hypervisor> hypervisors = os.compute().hypervisors()
 				.list();
 		this.availableCPU = new HashMap<String, Integer>();
 		for (Hypervisor hypervisor : hypervisors) {
-			this.availableCPU.put(hypervisor.getHypervisorHostname(), new Integer(
-					hypervisor.getFreeDisk()));
+			this.availableCPU.put(hypervisor.getHypervisorHostname(),
+					Integer.valueOf(hypervisor.getFreeDisk()));
 		}
 	}
-	
+
 	private void setRunningVM() {
 		List<? extends Hypervisor> hypervisors = os.compute().hypervisors()
 				.list();
 		this.runningVM = new HashMap<String, Integer>();
 		for (Hypervisor hypervisor : hypervisors) {
-			this.runningVM.put(hypervisor.getHypervisorHostname(), new Integer(
-					hypervisor.getRunningVM()));
+			this.runningVM.put(hypervisor.getHypervisorHostname(),
+					Integer.valueOf(hypervisor.getRunningVM()));
+
 		}
 	}
 
@@ -93,7 +94,7 @@ public class OpenStackInfoPlugin implements CloudInfoPlugin {
 						hostService = availabilityZone.getHosts().get(
 								host.toLowerCase());
 						ns = hostService.get("nova-compute");
-						if ((hostService != null) && (ns != null)) {
+						if (ns != null) {
 							String s = ns.getAvailable();
 							if (s.equals("true"))
 								this.novaEnable.put(host, true);
@@ -124,7 +125,7 @@ public class OpenStackInfoPlugin implements CloudInfoPlugin {
 						hostService = availabilityZone.getHosts().get(
 								host.toLowerCase());
 						ns = hostService.get("nova-compute");
-						if ((hostService != null) && (ns != null)) {
+						if (ns != null) {
 							String s = ns.getStatusActive();
 							if (s.equals("true"))
 								this.novaRunning.put(host, true);
@@ -138,7 +139,6 @@ public class OpenStackInfoPlugin implements CloudInfoPlugin {
 			}
 		}
 	}
-	
 
 	public List<Host> getHostInformation() {
 		this.setHostsName();

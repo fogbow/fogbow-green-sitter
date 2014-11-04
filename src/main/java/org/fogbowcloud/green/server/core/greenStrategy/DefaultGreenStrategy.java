@@ -43,7 +43,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 		return sleepingHosts;
 	}
 
-	public void SendIdleHostsToBed() {
+	public void sendIdleHostsToBed() {
 		this.setAllHosts();
 
 		for (Host host : this.allHosts) {
@@ -70,7 +70,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 
 	}
 
-	public void WakeUpSleepingHost(int minCPU, int minRAM) {
+	public void wakeUpSleepingHost(int minCPU, int minRAM) {
 
 	}
 
