@@ -1,5 +1,6 @@
 package org.fogbowcloud.green.server.core.greenStrategy;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -54,7 +55,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 				} else {
 					long nowTime = date.getTime();
 					if (!DefaultGreenStrategy.getSleepingHosts().contains(host)) {
-						/**
+						/*
 						 * if there is more than a half hour that the host is
 						 * napping than put it in sleeping host list
 						 */
@@ -62,6 +63,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 							// terá comando estilo
 							// "xmpp, mande esse host dormir"
 							DefaultGreenStrategy.getSleepingHosts().add(host);
+							DefaultGreenStrategy.getNappingHosts().remove(host);
 						}
 					}
 				}
@@ -71,7 +73,17 @@ public class DefaultGreenStrategy implements GreenStrategy {
 	}
 
 	public void wakeUpSleepingHost(int minCPU, int minRAM) {
-
+		Collections.sort(DefaultGreenStrategy.sleepingHosts);
+		for (Host host : DefaultGreenStrategy.getSleepingHosts()) {
+			if (host.getAvailableCPU() >= minCPU) {
+				if (host.getAvailableRAM() > minRAM) {
+					// terá comando como xmpp, acorde esse host
+					sleepingHosts.remove(host);
+				}
+			} else {
+				return;
+			}
+		}
 	}
 
 }

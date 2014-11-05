@@ -1,8 +1,7 @@
 package org.fogbowcloud.green.server.core;
 
-public class Host{
-	
-	
+public class Host implements Comparable {
+
 	private String name;
 	private int runningVM;
 	private boolean novaRunning;
@@ -10,9 +9,10 @@ public class Host{
 	private long updateTime;
 	private int availableCPU;
 	private int availableRAM;
-	
+
 	public Host(String name, int runningVM, boolean novaRunning,
-			boolean novaEnable, long updateTime, int availableCPU, int availableRAM) {
+			boolean novaEnable, long updateTime, int availableCPU,
+			int availableRAM) {
 		super();
 		this.name = name;
 		this.runningVM = runningVM;
@@ -20,7 +20,7 @@ public class Host{
 		this.novaEnable = novaEnable;
 		this.updateTime = updateTime;
 		this.availableCPU = availableCPU;
-		this.availableRAM =  availableRAM;
+		this.availableRAM = availableRAM;
 	}
 
 	public int getAvailableCPU() {
@@ -51,7 +51,6 @@ public class Host{
 		return novaRunning;
 	}
 
-
 	public void setAvailableCPU(int availableCPU) {
 		this.availableCPU = availableCPU;
 	}
@@ -59,7 +58,7 @@ public class Host{
 	public void setAvailableRAM(int availableRAM) {
 		this.availableRAM = availableRAM;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -91,5 +90,17 @@ public class Host{
 				+ ", novaRunning=" + novaRunning + ", novaEnable=" + novaEnable
 				+ ", updateTime=" + updateTime + ", availableCPU="
 				+ availableCPU + ", availableRAM=" + availableRAM + "]";
+	}
+
+	@Override
+	public int compareTo(Object arg0) {
+		Host host = (Host) arg0;
+		if (this.availableCPU < host.availableCPU) {
+			return -1;
+		}
+		if (this.availableCPU > host.availableCPU) {
+			return 1;
+		}
+		return 0;
 	}
 }

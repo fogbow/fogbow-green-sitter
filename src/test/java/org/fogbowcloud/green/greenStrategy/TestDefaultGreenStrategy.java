@@ -54,5 +54,19 @@ public class TestDefaultGreenStrategy {
 		dgs2.sendIdleHostsToBed();
 		Assert.assertEquals(1, DefaultGreenStrategy.getSleepingHosts().size());
 	}
+	
+	@Test 
+	public void noHosts(){
+		int hostsSleepingNum = DefaultGreenStrategy.getNappingHosts().size();
+		int hostsNappingNum = DefaultGreenStrategy.getNappingHosts().size();
+		List <Host> hosts = new LinkedList <Host> ();
+		Date date = this.createDateMock(3600001);
+		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
+		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, date);
+		dgs.sendIdleHostsToBed();
+		Assert.assertEquals(hostsSleepingNum, DefaultGreenStrategy.getSleepingHosts().size());
+		Assert.assertEquals(hostsNappingNum, DefaultGreenStrategy.getSleepingHosts().size());
+	}
 
+	
 }
