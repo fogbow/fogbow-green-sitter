@@ -14,8 +14,8 @@ public class DefaultGreenStrategy implements GreenStrategy {
 
 	private CloudInfoPlugin openStackPlugin;
 	private List<? extends Host> allHosts;
-	private static List<Host> nappingHosts = new LinkedList<Host>();
-	private static List<Host> sleepingHosts = new LinkedList<Host>();
+	private List<Host> nappingHosts = new LinkedList<Host>();
+	private List<Host> sleepingHosts = new LinkedList<Host>();
 	private Date date;
 
 	public DefaultGreenStrategy(Properties cloudProperties) {
@@ -27,20 +27,23 @@ public class DefaultGreenStrategy implements GreenStrategy {
 		this.date = new Date();
 	}
 
-	public DefaultGreenStrategy(CloudInfoPlugin openStackPlugin, Date date) {
+	public DefaultGreenStrategy(CloudInfoPlugin openStackPlugin) {
 		this.openStackPlugin = openStackPlugin;
-		this.date = date;
 	}
 
 	private void setAllHosts() {
 		this.allHosts = this.openStackPlugin.getHostInformation();
 	}
+	
+	public void setDate (Date date){
+		this.date = date;
+	}
 
-	public static List<Host> getNappingHosts() {
+	public List<Host> getNappingHosts() {
 		return nappingHosts;
 	}
 
-	public static List<Host> getSleepingHosts() {
+	public List<Host> getSleepingHosts() {
 		return sleepingHosts;
 	}
 
@@ -50,11 +53,11 @@ public class DefaultGreenStrategy implements GreenStrategy {
 		for (Host host : this.allHosts) {
 			if (host.isNovaEnable() && host.isNovaRunning()
 					&& (host.getRunningVM() == 0)) {
-				if (!DefaultGreenStrategy.getNappingHosts().contains(host)) {
-					DefaultGreenStrategy.getNappingHosts().add(host);
+				if (!this.getNappingHosts().contains(host)) {
+					this.getNappingHosts().add(host);
 				} else {
 					long nowTime = date.getTime();
-					if (!DefaultGreenStrategy.getSleepingHosts().contains(host)) {
+					if (!this.getSleepingHosts().contains(host)) {
 						/*
 						 * if there is more than a half hour that the host is
 						 * napping than put it in sleeping host list
@@ -62,8 +65,8 @@ public class DefaultGreenStrategy implements GreenStrategy {
 						if (nowTime - host.getUpdateTime() > 1800000) {
 							// terá comando estilo
 							// "xmpp, mande esse host dormir"
-							DefaultGreenStrategy.getSleepingHosts().add(host);
-							DefaultGreenStrategy.getNappingHosts().remove(host);
+							this.getSleepingHosts().add(host);
+							this.getNappingHosts().remove(host);
 						}
 					}
 				}
@@ -73,12 +76,13 @@ public class DefaultGreenStrategy implements GreenStrategy {
 	}
 
 	public void wakeUpSleepingHost(int minCPU, int minRAM) {
-		Collections.sort(DefaultGreenStrategy.sleepingHosts);
-		for (Host host : DefaultGreenStrategy.getSleepingHosts()) {
+		Collections.sort(this.sleepingHosts);
+		for (Host host : this.getSleepingHosts()) {
 			if (host.getAvailableCPU() >= minCPU) {
-				if (host.getAvailableRAM() > minRAM) {
+				if (host.getAvailableRAM() >= minRAM) {
 					// terá comando como xmpp, acorde esse host
-					sleepingHosts.remove(host);
+					this.sleepingHosts.remove(host);
+					return;
 				}
 			} else {
 				return;

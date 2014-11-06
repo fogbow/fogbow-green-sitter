@@ -96,10 +96,10 @@ public class Host implements Comparable {
 	public int compareTo(Object arg0) {
 		Host host = (Host) arg0;
 		if (this.availableCPU < host.availableCPU) {
-			return -1;
+			return 1;
 		}
 		if (this.availableCPU > host.availableCPU) {
-			return 1;
+			return -1;
 		}
 		return 0;
 	}

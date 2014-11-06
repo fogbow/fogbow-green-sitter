@@ -31,9 +31,9 @@ public class TestDefaultGreenStrategy {
 		List <Host> hosts = new LinkedList <Host> ();
 		hosts.add(napping);
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
-		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, null);
+		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip);
 		dgs.sendIdleHostsToBed();
-		Assert.assertEquals(1, DefaultGreenStrategy.getNappingHosts().size());
+		Assert.assertEquals(1, dgs.getNappingHosts().size());
 	}
 	
 	@Test
@@ -43,30 +43,85 @@ public class TestDefaultGreenStrategy {
 		hosts.add(h1);
 		Date date = this.createDateMock(3600001);
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
-		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, date);
+		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip);
 		dgs.sendIdleHostsToBed();
-		
-		Host h2 = new Host ("host1", 0, true, true,0,0,0);
-		List <Host> hosts2 = new LinkedList <Host> ();
-		hosts2.add(h2);
-		OpenStackInfoPlugin osip2 = this.createOpenStackInfoPluginMock(hosts2);
-		DefaultGreenStrategy dgs2 = new DefaultGreenStrategy(osip2, date);
-		dgs2.sendIdleHostsToBed();
-		Assert.assertEquals(1, DefaultGreenStrategy.getSleepingHosts().size());
+		dgs.setDate(date);
+		dgs.sendIdleHostsToBed();
+		Assert.assertEquals(1, dgs.getSleepingHosts().size());
+		Assert.assertEquals(0, dgs.getNappingHosts().size());
 	}
 	
 	@Test 
 	public void noHosts(){
-		int hostsSleepingNum = DefaultGreenStrategy.getNappingHosts().size();
-		int hostsNappingNum = DefaultGreenStrategy.getNappingHosts().size();
 		List <Host> hosts = new LinkedList <Host> ();
 		Date date = this.createDateMock(3600001);
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
-		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, date);
+		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip);
+		dgs.setDate(date);
 		dgs.sendIdleHostsToBed();
-		Assert.assertEquals(hostsSleepingNum, DefaultGreenStrategy.getSleepingHosts().size());
-		Assert.assertEquals(hostsNappingNum, DefaultGreenStrategy.getSleepingHosts().size());
+		Assert.assertEquals(0, dgs.getSleepingHosts().size());
+		Assert.assertEquals(0, dgs.getSleepingHosts().size());
 	}
 
+	@Test
+	public void wakeUp(){
+		Host mustWake = new Host ("wake", 0, true, true, 1800000, 3, 8);
+		Host stilSleep = new Host ("stil",0,true, true, 1800000, 3, 2);
+		Host stilSleep2 = new Host ("stil2",0,true, true, 1800000, 1, 2);
+		
+		List <Host> hosts = new LinkedList <Host> ();
+		hosts.add(mustWake);
+		hosts.add(stilSleep);
+		hosts.add(stilSleep2);
+		
+		Date date = this.createDateMock(3600001);
+		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
+		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip);
+		dgs.sendIdleHostsToBed();
+		dgs.setDate(date);
+		dgs.sendIdleHostsToBed();
+		
+		dgs.wakeUpSleepingHost(2, 4);
+		
+		List <Host> expetedResult = new LinkedList <Host> ();
+		expetedResult.add(stilSleep);
+		expetedResult.add(stilSleep2);
+		
+		Assert.assertArrayEquals(expetedResult.toArray(), dgs.getSleepingHosts().toArray());
+	}
+	
+	@Test
+	public void noHostSleeping(){
+		List <Host> hosts = new LinkedList <Host> ();
+		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
+		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip);
+		
+		dgs.sendIdleHostsToBed();
+		dgs.sendIdleHostsToBed();
+		
+		Assert.assertEquals(0, dgs.getSleepingHosts().size());
+	}
+	
+	@Test
+	public void multipleWakableHosts(){
+		Host mustWake = new Host ("wake", 0, true, true, 1800000, 3, 8);
+		Host mustWake2 = new Host ("stil",0,true, true, 1800000, 3, 5);
+	
+		
+		List <Host> hosts = new LinkedList <Host> ();
+		hosts.add(mustWake);
+		hosts.add(mustWake2);
+		
+		Date date = this.createDateMock(3600001);
+		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
+		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip);
+		dgs.sendIdleHostsToBed();
+		dgs.setDate(date);
+		dgs.sendIdleHostsToBed();
+		
+		dgs.wakeUpSleepingHost(2, 4);
+		
+		Assert.assertEquals(1, dgs.getSleepingHosts().size());
+	}
 	
 }
