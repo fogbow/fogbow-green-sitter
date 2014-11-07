@@ -101,6 +101,18 @@ public class Host implements Comparable {
 		if (this.availableCPU > host.availableCPU) {
 			return -1;
 		}
+		/*
+		 * if the hosts have the same CPU capacities, wake the 
+		 * one with the biggest RAM
+		 * */
+		if (this.availableCPU == host.availableCPU) {
+			if (this.availableRAM < host.availableRAM){
+				return 1;
+			}
+			if (this.availableRAM > host.availableRAM){
+				return -1;
+			}
+		}
 		return 0;
 	}
 }
