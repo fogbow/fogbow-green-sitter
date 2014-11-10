@@ -19,6 +19,5 @@ public class GreenStrategyThread extends Thread {
 		}
 		DefaultGreenStrategy gs = new DefaultGreenStrategy(prop);
 		gs.sendIdleHostsToBed();
-		System.out.println(gs.getNappingHosts().size());
 	}
 }
