@@ -95,7 +95,6 @@ public class TestDefaultGreenStrategy {
 		List <Host> hosts = new LinkedList <Host> ();
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
 		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip);
-		
 		dgs.sendIdleHostsToBed();
 		dgs.sendIdleHostsToBed();
 		
