@@ -18,14 +18,20 @@ public class Main {
 
 	public static void main(String[] args) {
 		Properties prop = new Properties();
-		try{
+		try {
 			prop = getProp(args[0]);
-		}catch(Exception e){
+		} catch (Exception e) {
 		}
 		GreenStrategyThread gs = new GreenStrategyThread(prop);
 		gs.start();
-		while (true){
-			gs.run();
+		while (true) {
+			try {
+				long sleepingTime = Long.parseLong(prop
+						.getProperty("greenstrategyprop.sleeptime"));
+				Thread.sleep(sleepingTime);
+				gs.run();
+			} catch (Exception e) {
+			}
 		}
 	}
 }

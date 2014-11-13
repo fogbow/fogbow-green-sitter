@@ -17,18 +17,22 @@ public class DefaultGreenStrategy implements GreenStrategy {
 	private List<Host> nappingHosts = new LinkedList<Host>();
 	private List<Host> sleepingHosts = new LinkedList<Host>();
 	private Date date;
+	private long graceTime;
 
-	public DefaultGreenStrategy(Properties cloudProperties) {
-		this.openStackPlugin = new OpenStackInfoPlugin(cloudProperties
-				.getProperty("prop.endpoint").toString(), cloudProperties
-				.getProperty("prop.username").toString(), cloudProperties.get(
-				"prop.password").toString(), cloudProperties.getProperty(
-				"prop.tenant").toString());
+	public DefaultGreenStrategy(Properties greenProperties) {
+		this.openStackPlugin = new OpenStackInfoPlugin(greenProperties
+				.getProperty("openstackprop.endpoint").toString(), greenProperties
+				.getProperty("openstackprop.username").toString(), greenProperties.get(
+				"openstackprop.password").toString(), greenProperties.getProperty(
+				"openstackprop.tenant").toString());
 		this.date = new Date();
+		this.graceTime = Long.parseLong(greenProperties.get("greenstrategyprop.gracetime").toString());
+		System.out.println(graceTime);
 	}
 
-	public DefaultGreenStrategy(CloudInfoPlugin openStackPlugin) {
+	public DefaultGreenStrategy(CloudInfoPlugin openStackPlugin, long graceTime) {
 		this.openStackPlugin = openStackPlugin;
+		this.graceTime = graceTime;
 	}
 
 	private void setAllHosts() {
@@ -62,7 +66,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 						 * if there is more than a half hour that the host is
 						 * napping than put it in sleeping host list
 						 */
-						if (nowTime - host.getUpdateTime() > 1800000) {
+						if (nowTime - host.getUpdateTime() > this.graceTime) {
 							// terá comando estilo
 							// "xmpp, mande esse host dormir"
 							this.getSleepingHosts().add(host);

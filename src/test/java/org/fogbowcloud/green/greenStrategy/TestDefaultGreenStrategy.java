@@ -31,7 +31,7 @@ public class TestDefaultGreenStrategy {
 		List <Host> hosts = new LinkedList <Host> ();
 		hosts.add(napping);
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
-		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip);
+		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
 		dgs.sendIdleHostsToBed();
 		Assert.assertEquals(1, dgs.getNappingHosts().size());
 	}
@@ -43,7 +43,7 @@ public class TestDefaultGreenStrategy {
 		hosts.add(h1);
 		Date date = this.createDateMock(3600001);
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
-		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip);
+		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
 		dgs.sendIdleHostsToBed();
 		dgs.setDate(date);
 		dgs.sendIdleHostsToBed();
@@ -56,7 +56,7 @@ public class TestDefaultGreenStrategy {
 		List <Host> hosts = new LinkedList <Host> ();
 		Date date = this.createDateMock(3600001);
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
-		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip);
+		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
 		dgs.setDate(date);
 		dgs.sendIdleHostsToBed();
 		Assert.assertEquals(0, dgs.getSleepingHosts().size());
@@ -76,7 +76,7 @@ public class TestDefaultGreenStrategy {
 		
 		Date date = this.createDateMock(3600001);
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
-		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip);
+		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
 		dgs.sendIdleHostsToBed();
 		dgs.setDate(date);
 		dgs.sendIdleHostsToBed();
@@ -94,7 +94,7 @@ public class TestDefaultGreenStrategy {
 	public void noHostSleeping(){
 		List <Host> hosts = new LinkedList <Host> ();
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
-		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip);
+		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
 		dgs.sendIdleHostsToBed();
 		dgs.sendIdleHostsToBed();
 		
@@ -113,7 +113,7 @@ public class TestDefaultGreenStrategy {
 		
 		Date date = this.createDateMock(3600001);
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
-		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip);
+		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
 		dgs.sendIdleHostsToBed();
 		dgs.setDate(date);
 		dgs.sendIdleHostsToBed();
