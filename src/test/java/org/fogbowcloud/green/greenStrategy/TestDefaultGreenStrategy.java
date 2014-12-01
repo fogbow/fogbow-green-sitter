@@ -4,8 +4,8 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.fogbowcloud.green.server.core.Host;
 import org.fogbowcloud.green.server.core.greenStrategy.DefaultGreenStrategy;
+import org.fogbowcloud.green.server.core.greenStrategy.Host;
 import org.fogbowcloud.green.server.core.plugins.openstack.OpenStackInfoPlugin;
 import org.junit.Assert;
 import org.junit.Test;

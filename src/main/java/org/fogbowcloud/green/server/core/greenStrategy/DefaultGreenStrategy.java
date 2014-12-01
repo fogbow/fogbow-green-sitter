@@ -2,11 +2,12 @@ package org.fogbowcloud.green.server.core.greenStrategy;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
-import org.fogbowcloud.green.server.core.Host;
 import org.fogbowcloud.green.server.core.plugins.CloudInfoPlugin;
 import org.fogbowcloud.green.server.core.plugins.openstack.OpenStackInfoPlugin;
 
@@ -27,7 +28,6 @@ public class DefaultGreenStrategy implements GreenStrategy {
 				"openstackprop.tenant").toString());
 		this.date = new Date();
 		this.graceTime = Long.parseLong(greenProperties.get("greenstrategyprop.gracetime").toString());
-		System.out.println(graceTime);
 	}
 
 	public DefaultGreenStrategy(CloudInfoPlugin openStackPlugin, long graceTime) {
@@ -84,7 +84,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 		for (Host host : this.getSleepingHosts()) {
 			if (host.getAvailableCPU() >= minCPU) {
 				if (host.getAvailableRAM() >= minRAM) {
-					// terá comando como xmpp, acorde esse host
+					// terá comando como wake on lan, acorde esse host
 					this.sleepingHosts.remove(host);
 					return;
 				}

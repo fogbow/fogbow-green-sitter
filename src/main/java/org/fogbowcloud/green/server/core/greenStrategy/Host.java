@@ -1,4 +1,4 @@
-package org.fogbowcloud.green.server.core;
+package org.fogbowcloud.green.server.core.greenStrategy;
 
 public class Host implements Comparable {
 

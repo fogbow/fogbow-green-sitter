@@ -4,7 +4,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.fogbowcloud.green.server.core.greenStrategy.DefaultGreenStrategy;
 import org.fogbowcloud.green.server.core.greenStrategy.GreenStrategyThread;
 
 public class Main {

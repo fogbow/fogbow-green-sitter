@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.fogbowcloud.green.server.core.Host;
+import org.fogbowcloud.green.server.core.greenStrategy.Host;
 import org.fogbowcloud.green.server.core.plugins.CloudInfoPlugin;
 import org.openstack4j.model.compute.ext.AvailabilityZones.ZoneState;
 import org.openstack4j.api.OSClient;

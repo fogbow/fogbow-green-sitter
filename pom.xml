@@ -71,6 +71,11 @@
 			<artifactId>mockito-all</artifactId>
 			<version>1.8.4</version>
 		</dependency>
+		<dependency>
+			<groupId>org.jamppa</groupId>
+			<artifactId>jamppa</artifactId>
+			<version>0.1.1</version>
+		</dependency>
 	</dependencies>
 
 	<repositories>
@@ -115,7 +120,7 @@
 				<artifactId>cobertura-maven-plugin</artifactId>
 				<version>${cobertura.version}</version>
 				<configuration>
-				    <argLine>-XX:-UseSplitVerifier</argLine>
+					<argLine>-XX:-UseSplitVerifier</argLine>
 					<formats>
 						<format>xml</format>
 					</formats>
