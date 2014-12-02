@@ -26,7 +26,7 @@ public class TestDefaultGreenStrategy {
 	}
 	
 	@Test 
-	public void oneHostNapping(){
+	public void testOneHostNapping(){
 		Host napping = new Host ("host1", 0, true, true, 0, 0, 0);
 		List <Host> hosts = new LinkedList <Host> ();
 		hosts.add(napping);
@@ -37,7 +37,7 @@ public class TestDefaultGreenStrategy {
 	}
 	
 	@Test
-	public void oneHostSleeping(){
+	public void testOneHostSleeping(){
 		Host h1 = new Host ("host1", 0, true, true, 1800000,0,0);
 		List <Host> hosts = new LinkedList <Host> ();
 		hosts.add(h1);
@@ -52,7 +52,7 @@ public class TestDefaultGreenStrategy {
 	}
 	
 	@Test 
-	public void noHosts(){
+	public void testNoHosts(){
 		List <Host> hosts = new LinkedList <Host> ();
 		Date date = this.createDateMock(3600001);
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
@@ -64,7 +64,7 @@ public class TestDefaultGreenStrategy {
 	}
 
 	@Test
-	public void wakeUp(){
+	public void testWakeUp(){
 		Host mustWake = new Host ("wake", 0, true, true, 1800000, 3, 8);
 		Host stilSleep = new Host ("stil",0,true, true, 1800000, 3, 2);
 		Host stilSleep2 = new Host ("stil2",0,true, true, 1800000, 1, 2);
@@ -91,7 +91,7 @@ public class TestDefaultGreenStrategy {
 	}
 	
 	@Test
-	public void noHostSleeping(){
+	public void testNoHostSleeping(){
 		List <Host> hosts = new LinkedList <Host> ();
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
 		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
@@ -102,7 +102,7 @@ public class TestDefaultGreenStrategy {
 	}
 	
 	@Test
-	public void multipleWakableHosts(){
+	public void testMultipleWakableHosts(){
 		Host mustWake = new Host ("wake", 0, true, true, 1800000, 3, 8);
 		Host mustWake2 = new Host ("stil",0,true, true, 1800000, 3, 5);
 	
