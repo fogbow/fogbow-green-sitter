@@ -1,4 +1,4 @@
-package org.fogbowcloud.green.agent;
+package org.fogbowcloud.green.agent.core;
 
 
 import java.io.IOException;

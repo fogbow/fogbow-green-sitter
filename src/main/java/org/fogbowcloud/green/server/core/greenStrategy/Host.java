@@ -1,6 +1,6 @@
 package org.fogbowcloud.green.server.core.greenStrategy;
 
-public class Host implements Comparable {
+public class Host implements Comparable<Host> {
 
 	private String name;
 	private int runningVM;
@@ -13,7 +13,6 @@ public class Host implements Comparable {
 	public Host(String name, int runningVM, boolean novaRunning,
 			boolean novaEnable, long updateTime, int availableCPU,
 			int availableRAM) {
-		super();
 		this.name = name;
 		this.runningVM = runningVM;
 		this.novaRunning = novaRunning;
@@ -93,26 +92,14 @@ public class Host implements Comparable {
 	}
 
 	@Override
-	public int compareTo(Object arg0) {
-		Host host = (Host) arg0;
-		if (this.availableCPU < host.availableCPU) {
-			return 1;
-		}
-		if (this.availableCPU > host.availableCPU) {
-			return -1;
+	public int compareTo(Host host) {
+		if (this.availableCPU != host.availableCPU) {
+			return host.availableCPU - this.availableCPU; 
 		}
 		/*
 		 * if the hosts have the same CPU capacities, wake the 
 		 * one with the biggest RAM
 		 * */
-		if (this.availableCPU == host.availableCPU) {
-			if (this.availableRAM < host.availableRAM){
-				return 1;
-			}
-			if (this.availableRAM > host.availableRAM){
-				return -1;
-			}
-		}
-		return 0;
+		return host.availableRAM - this.availableRAM;
 	}
 }

@@ -4,7 +4,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.fogbowcloud.green.server.core.greenStrategy.GreenStrategyThread;
+import org.fogbowcloud.green.server.core.greenStrategy.DefaultGreenStrategy;
 
 public class Main {
 
@@ -19,18 +19,10 @@ public class Main {
 		Properties prop = new Properties();
 		try {
 			prop = getProp(args[0]);
-		} catch (Exception e) {
+		} catch (IOException e) {
+			
 		}
-		GreenStrategyThread gs = new GreenStrategyThread(prop);
+		DefaultGreenStrategy gs = new DefaultGreenStrategy(prop);
 		gs.start();
-		while (true) {
-			try {
-				long sleepingTime = Long.parseLong(prop
-						.getProperty("greenstrategyprop.sleeptime"));
-				Thread.sleep(sleepingTime);
-				gs.run();
-			} catch (Exception e) {
-			}
-		}
 	}
 }
