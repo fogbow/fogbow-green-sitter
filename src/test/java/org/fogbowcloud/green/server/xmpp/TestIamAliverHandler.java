@@ -1,27 +1,41 @@
 package org.fogbowcloud.green.server.xmpp;
 
+import org.dom4j.tree.DefaultElement;
+import org.fogbowcloud.green.server.core.greenStrategy.DefaultGreenStrategy;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.xmpp.packet.IQ;
+import org.xmpp.packet.JID;
 
 public class TestIamAliverHandler {
 
+	private IQ createIQMock(String jidAdress) {
+		JID jid = new JID(jidAdress);
+		IQ querry = Mockito.mock(IQ.class);
+		Mockito.when(querry.getFrom()).thenReturn(jid);
+		Mockito.when(querry.getElement())
+				.thenReturn(new DefaultElement("name"));
+		return querry;
+	}
+
 	@Test
-	public void testTwoHosts() {
-		IQ iq1 = new IQ();
-		iq1.setTo("iamalive.test.com");
-		iq1.getElement().addElement("query", "iamalive").addElement("content")
-				.setText("123.456.789");
-		IQ iq2 = new IQ();
-		iq2.setTo("iamalive.test.com");
-		iq2.getElement().addElement("query", "iamalive").addElement("content")
-				.setText("123.756.759");
-
-		IamAliveHandler iah = new IamAliveHandler("test", null);
-		IQ result = iah.handle(iq1);
-		iah.handle(iq2);
+	public void testOneHost() {
+		final String IP = "123.456.789";
+		final String JID = "fulano@teste.com";
 		
-		System.out.println(result.toString());
-
+		IQ iq = this.createIQMock(JID);
+		Mockito.when(iq.getType()).thenReturn(IQ.Type.get);
+		iq.setTo("iamalive.test.com");
+		iq.getElement().addElement("query", "org.fogbowcloud.green.IAmAlive")
+				.addElement("content").setText(IP);
+		
+		DefaultGreenStrategy gs = Mockito.mock(DefaultGreenStrategy.class);
+		Mockito.doNothing().when(gs).setAgentAddress(JID, IP);
+		
+		IAmAliveHandler iah = new IAmAliveHandler(gs);
+		IQ result = iah.handle(iq);
+	
+		Assert.assertEquals("Received from JID: " + JID+ " IP: "+IP, result.getElement().element("query").elementText("content"));
 	}
 }

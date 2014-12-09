@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 import org.fogbowcloud.green.server.core.greenStrategy.DefaultGreenStrategy;
+import org.fogbowcloud.green.server.xmpp.GreenSitterXMPPComponent;
 
 public class Main {
 
@@ -16,13 +17,15 @@ public class Main {
 	}
 
 	public static void main(String[] args) {
-		Properties prop = new Properties();
 		try {
-			prop = getProp(args[0]);
-		} catch (IOException e) {
-			
+			Properties prop = getProp(args[0]);
+			DefaultGreenStrategy gs = new DefaultGreenStrategy(prop);
+			GreenSitterXMPPComponent xmppComponent = new GreenSitterXMPPComponent(prop, gs);
+			gs.start();
+			xmppComponent.process(true);
+		} catch (Exception e) {
+			System.err.println("You must provide as parameter the"
+					+ " path for the configuration file");
 		}
-		DefaultGreenStrategy gs = new DefaultGreenStrategy(prop);
-		gs.start();
 	}
 }

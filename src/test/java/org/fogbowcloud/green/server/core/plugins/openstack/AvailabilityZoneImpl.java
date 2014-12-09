@@ -1,4 +1,4 @@
-package org.fogbowcloud.green.core.plugins.openstack;
+package org.fogbowcloud.green.server.core.plugins.openstack;
 
 import java.util.Date;
 import java.util.HashMap;

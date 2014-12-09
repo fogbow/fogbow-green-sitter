@@ -4,9 +4,11 @@ import org.jamppa.component.handler.AbstractQueryHandler;
 import org.xmpp.packet.IQ;
 
 public class WakeUpRequestHandler extends AbstractQueryHandler {
+	
+	private static final String NAMESPACE = "org.fogbowcloud.green.WakeUpRequest";
 
-	public WakeUpRequestHandler(String namespace) {
-		super(namespace);
+	public WakeUpRequestHandler() {
+		super(NAMESPACE);
 	}
 
 	@Override

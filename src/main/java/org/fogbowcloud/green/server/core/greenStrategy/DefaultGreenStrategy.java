@@ -21,6 +21,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 	private List<Host> nappingHosts = new LinkedList<Host>();
 	private List<Host> sleepingHosts = new LinkedList<Host>();
 	private Map<String, String> jidToIp = new HashMap<String, String>();
+
 	private Date lastUpdatedTime;
 
 	private long graceTime;
@@ -31,13 +32,13 @@ public class DefaultGreenStrategy implements GreenStrategy {
 	public DefaultGreenStrategy(Properties greenProperties) {
 		
 		this.openStackPlugin = new OpenStackInfoPlugin(greenProperties
-				.getProperty("openstackprop.endpoint").toString(), greenProperties
-				.getProperty("openstackprop.username").toString(), greenProperties.get(
-				"openstackprop.password").toString(), greenProperties.getProperty(
-				"openstackprop.tenant").toString());
+				.getProperty("openstack.endpoint").toString(), greenProperties
+				.getProperty("openstack.username").toString(), greenProperties.get(
+				"openstack.password").toString(), greenProperties.getProperty(
+				"openstack.tenant").toString());
 		this.lastUpdatedTime = new Date();
-		this.sleepingTime = Long.parseLong(greenProperties.getProperty("greenstrategyprop.sleeptime"));
-		this.graceTime = Long.parseLong(greenProperties.get("greenstrategyprop.gracetime").toString());
+		this.sleepingTime = Long.parseLong(greenProperties.getProperty("greenstrategy.sleeptime"));
+		this.graceTime = Long.parseLong(greenProperties.get("greenstrategy.gracetime").toString());
 	}
 
 	public DefaultGreenStrategy(CloudInfoPlugin openStackPlugin, long graceTime) {
@@ -55,6 +56,10 @@ public class DefaultGreenStrategy implements GreenStrategy {
 
 	public List<Host> getNappingHosts() {
 		return nappingHosts;
+	}
+	
+	public Map<String, String> getJidToIp() {
+		return jidToIp;
 	}
 
 	public List<Host> getSleepingHosts() {

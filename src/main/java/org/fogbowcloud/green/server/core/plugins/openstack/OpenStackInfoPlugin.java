@@ -30,7 +30,7 @@ public class OpenStackInfoPlugin implements CloudInfoPlugin {
 				.authenticate());
 	}
 
-	public OpenStackInfoPlugin(OSClient os) {
+	protected OpenStackInfoPlugin(OSClient os) {
 		this.os = os;
 	}
 
