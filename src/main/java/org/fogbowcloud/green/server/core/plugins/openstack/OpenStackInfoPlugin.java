@@ -18,9 +18,6 @@ import org.openstack4j.openstack.OSFactory;
 public class OpenStackInfoPlugin implements CloudInfoPlugin {
 
 	private OSClient os;
-	private HashMap<String, Integer> runningVM;
-	private HashMap<String, Integer> availableRam;
-	private HashMap<String, Integer> availableCPU;
 
 	public OpenStackInfoPlugin(String endpoint, String username,
 			String password, String tenantname) {
@@ -44,35 +41,38 @@ public class OpenStackInfoPlugin implements CloudInfoPlugin {
 		return hostsName;
 	}
 
-	private void setAvailableRam() {
+	private HashMap<String, Integer> getAvailableRam() {
 		List<? extends Hypervisor> hypervisors = os.compute().hypervisors()
 				.list();
-		this.availableRam = new HashMap<String, Integer>();
+		HashMap<String, Integer> availableRam = new HashMap<String, Integer>();
 		for (Hypervisor hypervisor : hypervisors) {
-			this.availableRam.put(hypervisor.getHypervisorHostname(),
+			availableRam.put(hypervisor.getHypervisorHostname(),
 					Integer.valueOf(hypervisor.getFreeRam()));
 		}
+		return availableRam;
 	}
 
-	private void setAvailableCPU() {
+	private HashMap<String, Integer> getAvailableCPU() {
 		List<? extends Hypervisor> hypervisors = os.compute().hypervisors()
 				.list();
-		this.availableCPU = new HashMap<String, Integer>();
+		HashMap<String, Integer> availableCPU = new HashMap<String, Integer>();
 		for (Hypervisor hypervisor : hypervisors) {
-			this.availableCPU.put(hypervisor.getHypervisorHostname(),
+			availableCPU.put(hypervisor.getHypervisorHostname(),
 					Integer.valueOf(hypervisor.getFreeDisk()));
 		}
+		return availableCPU;
 	}
 
-	private void setRunningVM() {
+	private HashMap<String, Integer> getRunningVM() {
 		List<? extends Hypervisor> hypervisors = os.compute().hypervisors()
 				.list();
-		this.runningVM = new HashMap<String, Integer>();
+		HashMap<String, Integer> runningVM = new HashMap<String, Integer>();
 		for (Hypervisor hypervisor : hypervisors) {
-			this.runningVM.put(hypervisor.getHypervisorHostname(),
+			runningVM.put(hypervisor.getHypervisorHostname(),
 					Integer.valueOf(hypervisor.getRunningVM()));
 
 		}
+		return runningVM;
 	}
 
 	private static class NovaHost {
@@ -116,9 +116,9 @@ public class OpenStackInfoPlugin implements CloudInfoPlugin {
 	
 	public List<Host> getHostInformation() {
 		List<String> hostsName = this.getHostsName();
-		this.setRunningVM();
-		this.setAvailableCPU();
-		this.setAvailableRam();
+		HashMap<String, Integer> runningVM = this.getRunningVM();
+		HashMap<String, Integer> availableRam = this.getAvailableRam();
+		HashMap<String, Integer> availableCPU = this.getAvailableCPU();
 		
 		HashMap<String, NovaHost> novaState = getNovaState(hostsName);
 		
@@ -126,14 +126,14 @@ public class OpenStackInfoPlugin implements CloudInfoPlugin {
 		for (String hostName : hostsName) {
 			try {
 				String name = hostName;
-				int runningVM = this.runningVM.get(hostName);
+				int runningVMInTheHost = runningVM.get(hostName);
 				boolean novaRunning = novaState.get(hostName).running;
 				boolean novaEnable = novaState.get(hostName).enabled;
 				long updateTime = new Date().getTime();
-				int availableRam = this.availableRam.get(hostName);
-				int availableCPU = this.availableCPU.get(hostName);
-				Host host = new Host(name, runningVM, novaEnable, novaRunning,
-						updateTime, availableRam, availableCPU);
+				int availableRamInTheHost = availableRam.get(hostName);
+				int availableCPUInTheHost = availableCPU.get(hostName);
+				Host host = new Host(name, runningVMInTheHost, novaEnable, novaRunning,
+						updateTime, availableRamInTheHost, availableCPUInTheHost);
 				hosts.add(host);
 			} catch (Exception e) {
 				// Ignoring exceptions for hosts in unavailable zones
