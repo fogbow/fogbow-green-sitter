@@ -7,6 +7,7 @@ import java.util.List;
 import org.fogbowcloud.green.server.core.greenStrategy.DefaultGreenStrategy;
 import org.fogbowcloud.green.server.core.greenStrategy.Host;
 import org.fogbowcloud.green.server.core.plugins.openstack.OpenStackInfoPlugin;
+import org.fogbowcloud.green.server.xmpp.GreenSitterCommunicationComponent;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -41,9 +42,14 @@ public class TestDefaultGreenStrategy {
 		Host h1 = new Host ("host1", 0, true, true, 1800000,0,0);
 		List <Host> hosts = new LinkedList <Host> ();
 		hosts.add(h1);
+		
 		Date date = this.createDateMock(3600001);
+		GreenSitterCommunicationComponent gscc = Mockito.mock(GreenSitterCommunicationComponent.class);
+		Mockito.doNothing().when(gscc).wakeUpHost("host1");
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
 		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
+		
+		dgs.setCommunicationComponent(gscc);
 		dgs.sendIdleHostsToBed();
 		dgs.setDate(date);
 		dgs.sendIdleHostsToBed();
@@ -77,6 +83,10 @@ public class TestDefaultGreenStrategy {
 		Date date = this.createDateMock(3600001);
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
 		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
+		GreenSitterCommunicationComponent gscc = Mockito.mock(GreenSitterCommunicationComponent.class);
+		Mockito.doNothing().when(gscc).wakeUpHost("wake");
+		
+		dgs.setCommunicationComponent(gscc);
 		dgs.sendIdleHostsToBed();
 		dgs.setDate(date);
 		dgs.sendIdleHostsToBed();
@@ -112,12 +122,15 @@ public class TestDefaultGreenStrategy {
 		hosts.add(mustWake2);
 		
 		Date date = this.createDateMock(3600001);
+		GreenSitterCommunicationComponent gscc = Mockito.mock(GreenSitterCommunicationComponent.class);
+		Mockito.doNothing().when(gscc).wakeUpHost("wake");
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
+		
 		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
+		dgs.setCommunicationComponent(gscc);
 		dgs.sendIdleHostsToBed();
 		dgs.setDate(date);
 		dgs.sendIdleHostsToBed();
-		
 		dgs.wakeUpSleepingHost(2, 4);
 		
 		Assert.assertEquals(1, dgs.getSleepingHosts().size());
