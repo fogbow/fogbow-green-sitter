@@ -31,11 +31,11 @@ public class TestIamAliverHandler {
 				.addElement("content").setText(IP);
 		
 		DefaultGreenStrategy gs = Mockito.mock(DefaultGreenStrategy.class);
-		Mockito.doNothing().when(gs).setAgentAddress(JID, IP);
+		Mockito.doNothing().when(gs).setAgentAddress("nothing",JID, IP);
 		
 		IAmAliveHandler iah = new IAmAliveHandler(gs);
 		IQ result = iah.handle(iq);
 	
-		Assert.assertEquals("Received from JID: " + JID+ " IP: "+IP, result.getElement().element("query").elementText("content"));
+		Assert.assertEquals("result", result.getType().name());
 	}
 }

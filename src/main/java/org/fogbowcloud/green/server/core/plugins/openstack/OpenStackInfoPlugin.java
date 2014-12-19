@@ -78,13 +78,13 @@ public class OpenStackInfoPlugin implements CloudInfoPlugin {
 	private static class NovaHost {
 		boolean enabled;
 		boolean running;
-		
+
 		public NovaHost(boolean enabled, boolean running) {
 			this.enabled = enabled;
 			this.running = running;
 		}
 	}
-	
+
 	private HashMap<String, NovaHost> getNovaState(List<String> hostsName) {
 		ZoneService zones = os.compute().zones();
 		HashMap<String, NovaHost> novaRunning = new HashMap<String, NovaHost>();
@@ -96,14 +96,15 @@ public class OpenStackInfoPlugin implements CloudInfoPlugin {
 			if (zoneState.getAvailable()) {
 				for (String host : hostsName) {
 					try {
-						HashMap<String, ? extends NovaService> hostService = availabilityZone.getHosts().get(
-								host.toLowerCase());
+						HashMap<String, ? extends NovaService> hostService = availabilityZone
+								.getHosts().get(host.toLowerCase());
 						NovaService ns = hostService.get("nova-compute");
 						if (ns != null) {
 							String active = ns.getStatusActive();
 							String available = ns.getAvailable();
-							novaRunning.put(host, new NovaHost(
-									available.equals("true"), active.equals("true")));
+							novaRunning.put(host,
+									new NovaHost(available.equals("true"),
+											active.equals("true")));
 						}
 					} catch (Exception e) {
 					}
@@ -113,15 +114,15 @@ public class OpenStackInfoPlugin implements CloudInfoPlugin {
 		}
 		return novaRunning;
 	}
-	
+
 	public List<Host> getHostInformation() {
 		List<String> hostsName = this.getHostsName();
 		HashMap<String, Integer> runningVM = this.getRunningVM();
 		HashMap<String, Integer> availableRam = this.getAvailableRam();
 		HashMap<String, Integer> availableCPU = this.getAvailableCPU();
-		
+
 		HashMap<String, NovaHost> novaState = getNovaState(hostsName);
-		
+
 		List<Host> hosts = new LinkedList<Host>();
 		for (String hostName : hostsName) {
 			try {
@@ -132,8 +133,9 @@ public class OpenStackInfoPlugin implements CloudInfoPlugin {
 				long updateTime = new Date().getTime();
 				int availableRamInTheHost = availableRam.get(hostName);
 				int availableCPUInTheHost = availableCPU.get(hostName);
-				Host host = new Host(name, runningVMInTheHost, novaEnable, novaRunning,
-						updateTime, availableRamInTheHost, availableCPUInTheHost);
+				Host host = new Host(name, runningVMInTheHost, novaEnable,
+						novaRunning, updateTime, availableRamInTheHost,
+						availableCPUInTheHost);
 				hosts.add(host);
 			} catch (Exception e) {
 				// Ignoring exceptions for hosts in unavailable zones

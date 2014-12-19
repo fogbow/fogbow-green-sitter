@@ -36,14 +36,10 @@ public class TurnOff {
 	public void hibernate() throws RuntimeException, IOException {
 		String hibernateCommand="";
 		String operatingSystem = System.getProperty("os.name");
-
 		if ("Linux".equals(operatingSystem)
 				|| "Mac OS X".equals(operatingSystem)) {
-			hibernateCommand = "/usr/bin/dbus-send --system --print-reply --dest='org.freedesktop.UPower' /org/freedesktop/UPower org.freedesktop.UPower.Suspend";
-		}
-			
-		if (executeCommand("sudo service nova-compute status").contains("running")) {
-			executeCommand(hibernateCommand);
+			hibernateCommand = "/usr/bin/dbus-send --system --print-reply --dest='org.freedesktop.UPower' "
+					+ "/org/freedesktop/UPower org.freedesktop.UPower.Suspend";
 		}
 	}
 
