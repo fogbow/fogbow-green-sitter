@@ -5,6 +5,7 @@ import java.util.Properties;
 
 import org.fogbowcloud.green.server.core.greenStrategy.GreenStrategy;
 import org.jamppa.component.XMPPComponent;
+import  org.fogbowcloud.green.server.xmpp.Agent;
 
 public class GreenSitterCommunicationComponent extends XMPPComponent {
 
