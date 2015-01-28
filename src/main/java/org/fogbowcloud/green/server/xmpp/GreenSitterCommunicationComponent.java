@@ -34,7 +34,7 @@ public class GreenSitterCommunicationComponent extends XMPPComponent {
 
 	private void addHandlers() {
 		IAmAliveHandler alive = new IAmAliveHandler(gs);
-		WakeUpRequestHandler wakeup = new WakeUpRequestHandler();
+		WakeUpRequestHandler wakeup = new WakeUpRequestHandler(gs);
 		addGetHandler(alive);
 		addGetHandler(wakeup);
 	}

@@ -16,7 +16,7 @@ public class IAmAliveHandler extends AbstractQueryHandler {
 
 	@Override
 	public IQ handle(IQ query) {
-		//expected content format: "123.456.789" IP
+		//expected content format: IP plus host name (eg. "123.456.789 bobo")
 		String ip = query.getElement().element("query").elementText("ip");
 		String hostName = query.getElement().element("query").elementText("hostName");
 		String jid = query.getFrom().toString();
