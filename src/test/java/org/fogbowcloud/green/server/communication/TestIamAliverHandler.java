@@ -32,7 +32,7 @@ public class TestIamAliverHandler {
 				.addElement("content").setText(IP);
 		
 		DefaultGreenStrategy gs = Mockito.mock(DefaultGreenStrategy.class);
-		Mockito.doNothing().when(gs).setAgentAddress("nothing",JID, IP);
+		Mockito.doNothing().when(gs).setAgentAddress("nothing",JID, IP, null);
 		
 		IAmAliveHandler iah = new IAmAliveHandler(gs);
 		IQ result = iah.handle(iq);

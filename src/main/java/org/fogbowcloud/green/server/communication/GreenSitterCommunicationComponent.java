@@ -19,8 +19,8 @@ public class GreenSitterCommunicationComponent extends XMPPComponent {
 		addHandlers();
 	}
 	
-	public void setAgentAddress(String hostName, String jid, String ip) {
-		Agent agent = new Agent(hostName, jid, ip);
+	public void setAgentAddress(String hostName, String jid, String ip, String macAddress) {
+		Agent agent = new Agent(hostName, jid, ip, macAddress);
 		listAgent.add(agent);
 	}
 	

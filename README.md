@@ -21,4 +21,4 @@ There are two main parts of the Fogbow Green Sitter: the Agent and the Server. T
 The Server is a little bit more complex. There are three main parts of the Server system: The Cloud Information Plugin, already described; ; the Green Strategy, which is the heart of Green Sitter and where decisions are made (who is going to be turned up/down),.;and the Communication Component, that provides communication with Agents and with the Fogbow Manager. It receives the information sent by the agent and sends turn on/down signals to it when necessary by using both XMPP and wakeOnLan protocols. It also receives requests from the Fogbow Manager when there is no resources available in the private cloud, so it powers up a computer when possible.
 
 The following image illustrates the architecture described:
-<center>![General architecture](www.fogbowcloud.org/images/greenSitter.png)</center>
+<center>![General architecture](http://www.fogbowcloud.org/images/greenSitter.png)</center>

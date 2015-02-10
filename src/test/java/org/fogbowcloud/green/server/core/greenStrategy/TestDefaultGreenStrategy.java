@@ -4,10 +4,10 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.fogbowcloud.green.server.communication.GreenSitterCommunicationComponent;
 import org.fogbowcloud.green.server.core.greenStrategy.DefaultGreenStrategy;
 import org.fogbowcloud.green.server.core.greenStrategy.Host;
 import org.fogbowcloud.green.server.core.plugins.openstack.OpenStackInfoPlugin;
-import org.fogbowcloud.green.server.xmpp.GreenSitterCommunicationComponent;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;

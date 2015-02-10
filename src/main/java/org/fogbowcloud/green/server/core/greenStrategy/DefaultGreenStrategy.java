@@ -9,9 +9,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.fogbowcloud.green.server.communication.GreenSitterCommunicationComponent;
 import org.fogbowcloud.green.server.core.plugins.CloudInfoPlugin;
 import org.fogbowcloud.green.server.core.plugins.openstack.OpenStackInfoPlugin;
-import org.fogbowcloud.green.server.xmpp.GreenSitterCommunicationComponent;
 
 public class DefaultGreenStrategy implements GreenStrategy {
 
@@ -94,8 +94,8 @@ public class DefaultGreenStrategy implements GreenStrategy {
 		this.gscc = gscc;
 	}
 	
-	public void setAgentAddress(String hostName, String jid, String ip) {
-		gscc.setAgentAddress(hostName, jid, ip);
+	public void setAgentAddress(String hostName, String jid, String ip, String macAddress) {
+		gscc.setAgentAddress(hostName, jid, ip, macAddress);
 	}
 	
 	public void wakeUpSleepingHost(int minCPU, int minRAM) {

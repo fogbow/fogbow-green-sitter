@@ -16,12 +16,13 @@ public class IAmAliveHandler extends AbstractQueryHandler {
 
 	@Override
 	public IQ handle(IQ query) {
-		//expected content format: IP plus host name (eg. "123.456.789 bobo")
+		//expected content format: IP plus MAC Address plus host name (eg. "123.456.789 a1:2b:3c:d4:45:67 bobo")
 		String ip = query.getElement().element("query").elementText("ip");
 		String hostName = query.getElement().element("query").elementText("hostName");
 		String jid = query.getFrom().toString();
+		String macAddress = query.getElement().element("query").elementText("macAddress");
 		
-		gs.setAgentAddress(hostName, jid, ip);
+		gs.setAgentAddress(hostName, jid, ip, macAddress);
 
 		IQ resultIQ = IQ.createResultIQ(query);
 
