@@ -1,6 +1,7 @@
-package org.fogbowcloud.green.server.xmpp;
+package org.fogbowcloud.green.server.communication;
 
 import org.dom4j.tree.DefaultElement;
+import org.fogbowcloud.green.server.communication.IAmAliveHandler;
 import org.fogbowcloud.green.server.core.greenStrategy.DefaultGreenStrategy;
 import org.junit.Assert;
 import org.junit.Test;
