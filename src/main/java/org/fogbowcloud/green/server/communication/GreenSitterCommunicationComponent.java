@@ -1,5 +1,6 @@
 package org.fogbowcloud.green.server.communication;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Properties;
 
@@ -24,12 +25,19 @@ public class GreenSitterCommunicationComponent extends XMPPComponent {
 		listAgent.add(agent);
 	}
 	
-	public void sendHostToBed(String host){
-		
+	
+	public void wakeUpHost(String macAddress){
+		 ProcessBuilder pb =
+				   new ProcessBuilder("powerwake", macAddress);
+		 try {
+			pb.start();
+		} catch (IOException e) {
+			System.out.println("It was not possible to wake "+macAddress);
+		}
 	}
 	
-	public void wakeUpHost(String host){
-		
+	public void sendIdleHostToBed(String host){
+	
 	}
 
 	private void addHandlers() {

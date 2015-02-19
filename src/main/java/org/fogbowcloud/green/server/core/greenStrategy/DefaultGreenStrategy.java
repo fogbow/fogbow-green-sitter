@@ -79,7 +79,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 						 * napping than put it in sleeping host list
 						 */
 						if (nowTime - host.getUpdateTime() > this.graceTime) {
-							gscc.sendHostToBed(host.getName());
+							gscc.sendIdleHostToBed(host.getName());
 							this.getSleepingHosts().add(host);
 							this.getNappingHosts().remove(host);
 						}
