@@ -1,30 +1,23 @@
-package org.fogbowcloud.green.server.core;
+package org.fogbowcloud.green.agent.core;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.fogbowcloud.green.server.communication.ServerCommunicationComponent;
-import org.fogbowcloud.green.server.core.greenStrategy.DefaultGreenStrategy;
-
 public class Main {
-
+	
 	public static Properties getProp(String path) throws IOException {
 		Properties props = new Properties();
 		FileInputStream file = new FileInputStream(path);
 		props.load(file);
 		return props;
 	}
-
+	
 	public static void main(String[] args) {
 		try {
 			Properties prop = getProp(args[0]);
-			DefaultGreenStrategy gs = new DefaultGreenStrategy(prop);
-			ServerCommunicationComponent scc = new ServerCommunicationComponent(
-					prop, gs);
-			gs.setCommunicationComponent(scc);
-			gs.start();
-			scc.process(true);
+			AgentCommunicationComponent acc = new AgentCommunicationComponent(prop);
+			acc.sendIamAliveSignal();
 		} catch (Exception e) {
 			System.err.println("You must provide as parameter the"
 					+ " path for the configuration file");

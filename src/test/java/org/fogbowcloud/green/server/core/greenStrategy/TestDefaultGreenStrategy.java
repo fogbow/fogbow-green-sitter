@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.fogbowcloud.green.server.communication.GreenSitterCommunicationComponent;
+import org.fogbowcloud.green.server.communication.ServerCommunicationComponent;
 import org.fogbowcloud.green.server.core.greenStrategy.DefaultGreenStrategy;
 import org.fogbowcloud.green.server.core.greenStrategy.Host;
 import org.fogbowcloud.green.server.core.plugins.openstack.OpenStackInfoPlugin;
@@ -44,7 +44,7 @@ public class TestDefaultGreenStrategy {
 		hosts.add(h1);
 		
 		Date date = this.createDateMock(3600001);
-		GreenSitterCommunicationComponent gscc = Mockito.mock(GreenSitterCommunicationComponent.class);
+		ServerCommunicationComponent gscc = Mockito.mock(ServerCommunicationComponent.class);
 		Mockito.doNothing().when(gscc).wakeUpHost("host1");
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
 		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
@@ -83,7 +83,7 @@ public class TestDefaultGreenStrategy {
 		Date date = this.createDateMock(3600001);
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
 		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
-		GreenSitterCommunicationComponent gscc = Mockito.mock(GreenSitterCommunicationComponent.class);
+		ServerCommunicationComponent gscc = Mockito.mock(ServerCommunicationComponent.class);
 		Mockito.doNothing().when(gscc).wakeUpHost("wake");
 		
 		dgs.setCommunicationComponent(gscc);
@@ -122,7 +122,7 @@ public class TestDefaultGreenStrategy {
 		hosts.add(mustWake2);
 		
 		Date date = this.createDateMock(3600001);
-		GreenSitterCommunicationComponent gscc = Mockito.mock(GreenSitterCommunicationComponent.class);
+		ServerCommunicationComponent gscc = Mockito.mock(ServerCommunicationComponent.class);
 		Mockito.doNothing().when(gscc).wakeUpHost("wake");
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
 		

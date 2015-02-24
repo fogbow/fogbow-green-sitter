@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.fogbowcloud.green.server.communication.GreenSitterCommunicationComponent;
+import org.fogbowcloud.green.server.communication.ServerCommunicationComponent;
 import org.fogbowcloud.green.server.core.plugins.CloudInfoPlugin;
 import org.fogbowcloud.green.server.core.plugins.openstack.OpenStackInfoPlugin;
 
@@ -19,7 +19,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 	private List<? extends Host> allHosts;
 	private List<Host> nappingHosts = new LinkedList<Host>();
 	private List<Host> sleepingHosts = new LinkedList<Host>();
-	private GreenSitterCommunicationComponent gscc;
+	private ServerCommunicationComponent scc;
 
 	private Date lastUpdatedTime;
 
@@ -79,7 +79,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 						 * napping than put it in sleeping host list
 						 */
 						if (nowTime - host.getUpdateTime() > this.graceTime) {
-							gscc.sendIdleHostToBed(host.getName());
+							scc.sendIdleHostToBed(host.getName());
 							this.getSleepingHosts().add(host);
 							this.getNappingHosts().remove(host);
 						}
@@ -90,12 +90,12 @@ public class DefaultGreenStrategy implements GreenStrategy {
 
 	}
 	
-	public void setCommunicationComponent(GreenSitterCommunicationComponent gscc) {
-		this.gscc = gscc;
+	public void setCommunicationComponent(ServerCommunicationComponent gscc) {
+		this.scc = gscc;
 	}
 	
 	public void setAgentAddress(String hostName, String jid, String ip, String macAddress) {
-		gscc.setAgentAddress(hostName, jid, ip, macAddress);
+		this.scc.setAgentAddress(hostName, jid, ip, macAddress);
 	}
 	
 	public void wakeUpSleepingHost(int minCPU, int minRAM) {
@@ -103,7 +103,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 		for (Host host : this.getSleepingHosts()) {
 			if (host.getAvailableCPU() >= minCPU) {
 				if (host.getAvailableRAM() >= minRAM) {
-					gscc.wakeUpHost(host.getName());
+					this.scc.wakeUpHost(host.getName());
 					this.sleepingHosts.remove(host);
 					return;
 				}

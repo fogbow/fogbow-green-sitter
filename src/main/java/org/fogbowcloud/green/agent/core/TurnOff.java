@@ -11,6 +11,7 @@ public class TurnOff {
 				|| "Mac OS X".equals(operatingSystem)) {
 			hibernateCommand = "pm-hibernate";
 		}
+		//Suspend or hibernate?
 		 ProcessBuilder pb =
 				   new ProcessBuilder("sudo","-S", hibernateCommand);
 		 try {

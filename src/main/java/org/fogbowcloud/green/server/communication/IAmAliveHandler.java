@@ -6,7 +6,7 @@ import org.xmpp.packet.IQ;
 
 public class IAmAliveHandler extends AbstractQueryHandler {
 	
-	private static final String NAMESPACE = "org.fogbowcloud.green.IAmAlive";
+	private static final String NAMESPACE = "org.fogbowcloud.green.IAmAlive"; //Is this name actually good?
 	private final GreenStrategy gs;
 
 	public IAmAliveHandler(GreenStrategy gs) {

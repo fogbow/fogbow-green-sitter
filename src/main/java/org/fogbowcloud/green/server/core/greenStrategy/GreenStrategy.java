@@ -1,6 +1,6 @@
 package org.fogbowcloud.green.server.core.greenStrategy;
 
-import org.fogbowcloud.green.server.communication.GreenSitterCommunicationComponent;
+import org.fogbowcloud.green.server.communication.ServerCommunicationComponent;
 
 public interface GreenStrategy  {
 	
@@ -10,6 +10,6 @@ public interface GreenStrategy  {
 	
 	public void setAgentAddress(String Name, String JID, String IP, String macAddress);
 	
-	public void setCommunicationComponent(GreenSitterCommunicationComponent gscc);
+	public void setCommunicationComponent(ServerCommunicationComponent gscc);
 	
 }
