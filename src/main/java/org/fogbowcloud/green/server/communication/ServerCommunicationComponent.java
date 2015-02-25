@@ -3,8 +3,9 @@ package org.fogbowcloud.green.server.communication;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.dom4j.tree.DefaultElement;
 import org.fogbowcloud.green.server.communication.Agent;
 import org.fogbowcloud.green.server.core.greenStrategy.GreenStrategy;
 import org.jamppa.component.XMPPComponent;
@@ -35,7 +36,8 @@ public class ServerCommunicationComponent extends XMPPComponent {
 			ProcessBuilder pb = new ProcessBuilder("powerwake", macAddress);
 			pb.start();
 		} catch (IOException e) {
-			System.err.println("It was not possible to wake " + macAddress);
+			Logger logger = Logger.getLogger("green.server");
+			logger.log(Level.WARNING, "It was not possible to wake " + macAddress);
 		}
 	}
 

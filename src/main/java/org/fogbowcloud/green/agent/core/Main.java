@@ -19,6 +19,8 @@ public class Main {
 		try {
 			Properties prop = getProp(args[0]);
 			AgentCommunicationComponent acc = new AgentCommunicationComponent(prop);
+			if (!acc.init())
+				return;
 			acc.sendIamAliveSignal();
 		} catch (Exception e) {
 			Logger logger = Logger.getLogger("green.agent");

@@ -3,6 +3,8 @@ package org.fogbowcloud.green.server.core;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.fogbowcloud.green.server.communication.ServerCommunicationComponent;
 import org.fogbowcloud.green.server.core.greenStrategy.DefaultGreenStrategy;
@@ -26,7 +28,8 @@ public class Main {
 			gs.start();
 			scc.process(true);
 		} catch (Exception e) {
-			System.err.println("You must provide as parameter the"
+			Logger logger = Logger.getLogger("green.server");
+			logger.log(Level.WARNING, "You must provide as parameter the"
 					+ " path for the configuration file");
 		}
 	}

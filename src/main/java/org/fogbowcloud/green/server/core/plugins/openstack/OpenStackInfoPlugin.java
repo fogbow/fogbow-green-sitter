@@ -107,6 +107,7 @@ public class OpenStackInfoPlugin implements CloudInfoPlugin {
 											active.equals("true")));
 						}
 					} catch (Exception e) {
+						// Ignoring exceptions for hosts in unavailable zones
 					}
 
 				}
