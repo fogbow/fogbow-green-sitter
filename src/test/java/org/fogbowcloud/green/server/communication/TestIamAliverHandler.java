@@ -36,7 +36,7 @@ public class TestIamAliverHandler {
 		
 		IAmAliveHandler iah = new IAmAliveHandler(gs);
 		IQ result = iah.handle(iq);
-	
+	  		
 		Assert.assertEquals("result", result.getType().name());
 	}
 }
