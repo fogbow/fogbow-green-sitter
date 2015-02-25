@@ -19,7 +19,7 @@ public class IAmAliveHandler extends AbstractQueryHandler {
 		//expected content format: IP plus MAC Address plus host name (eg. "123.456.789 a1:2b:3c:d4:45:67 bobo")
 		String ip = query.getElement().element("query").elementText("ip");
 		String hostName = query.getElement().element("query").elementText("hostName");
-		String jid = query.getFrom().toString();
+		String jid = query.getFrom().toFullJID();
 		String macAddress = query.getElement().element("query").elementText("macAddress");
 		
 		gs.setAgentAddress(hostName, jid, ip, macAddress);

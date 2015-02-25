@@ -9,15 +9,15 @@ public class TurnOff {
 		String operatingSystem = System.getProperty("os.name");
 		if ("Linux".equals(operatingSystem)
 				|| "Mac OS X".equals(operatingSystem)) {
-			hibernateCommand = "pm-hibernate";
+			//Suspend or hibernate?
+			hibernateCommand = "pm-suspend";
 		}
-		//Suspend or hibernate?
 		 ProcessBuilder pb =
 				   new ProcessBuilder("sudo","-S", hibernateCommand);
 		 try {
 			pb.start();
 		} catch (IOException e) {
-			System.out.println("It was not possible to turn down");
+			System.err.println("It was not possible to turn down");
 		}
 	}
 

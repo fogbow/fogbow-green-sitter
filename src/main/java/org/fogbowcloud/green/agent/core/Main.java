@@ -3,6 +3,8 @@ package org.fogbowcloud.green.agent.core;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Main {
 	
@@ -19,7 +21,8 @@ public class Main {
 			AgentCommunicationComponent acc = new AgentCommunicationComponent(prop);
 			acc.sendIamAliveSignal();
 		} catch (Exception e) {
-			System.err.println("You must provide as parameter the"
+			Logger logger = Logger.getLogger("green.agent");
+			logger.log(Level.SEVERE,"You must provide as parameter the"
 					+ " path for the configuration file");
 		}
 	}
