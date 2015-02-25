@@ -16,6 +16,7 @@ import org.xmpp.packet.IQ.Type;
 
 public class AgentCommunicationComponent {
 
+	private static final String NAMESPACE = "org.fogbowcloud.green.IAmAlive";
 	Properties prop;
 	XMPPClient client;
 
@@ -45,7 +46,7 @@ public class AgentCommunicationComponent {
 		client.getConnection().addPacketListener(new PacketListener() {
 			@Override
 			public void processPacket(Packet packet) {
-				new TurnOff().hibernate();
+				new TurnOff().suspend(prop.getProperty("green.TurnOffCommand"));
 			}
 		}, new PacketFilter() {
 			@Override
@@ -71,7 +72,7 @@ public class AgentCommunicationComponent {
 	public void sendIamAliveSignal() {
 		IQ iq = new IQ(Type.get);
 		iq.setTo(this.prop.getProperty("xmpp.component"));
-		iq.getElement().addElement("query", "org.fogbowcloud.green.IAmAlive");
+		iq.getElement().addElement("query", NAMESPACE);
 
 		DefaultElement query = (DefaultElement) iq.getElement()
 				.elements("query").get(0);

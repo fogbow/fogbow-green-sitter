@@ -7,15 +7,14 @@ import java.util.logging.Logger;
 
 public class TurnOff {
 
-	public void hibernate() {
-		String hibernateCommand = "";
-		String operatingSystem = System.getProperty("os.name");
-		if ("Linux".equals(operatingSystem)
-				|| "Mac OS X".equals(operatingSystem)) {
-			// Suspend or hibernate?
-			hibernateCommand = "pm-suspend";
+	public void suspend(String command) {
+		String suspendCommand = "pm-suspend";
+		
+		if (command != ""){
+			suspendCommand = command;
 		}
-		ProcessBuilder pb = new ProcessBuilder("sudo", "-S", hibernateCommand);
+
+		ProcessBuilder pb = new ProcessBuilder("sudo", "-S", suspendCommand);
 		try {
 			pb.start();
 		} catch (IOException e) {
