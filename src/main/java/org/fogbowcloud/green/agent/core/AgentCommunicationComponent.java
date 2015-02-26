@@ -1,6 +1,9 @@
 package org.fogbowcloud.green.agent.core;
 
 import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,29 +17,34 @@ import org.xmpp.packet.IQ;
 import org.xmpp.packet.Packet;
 import org.xmpp.packet.IQ.Type;
 
+
 public class AgentCommunicationComponent {
 
 	private static final String NAMESPACE = "org.fogbowcloud.green.IAmAlive";
-	Properties prop;
-	XMPPClient client;
+	private ScheduledExecutorService executor = Executors
+			.newScheduledThreadPool(1);
+	private Properties prop;
+	private long sleepingTime;
+	private XMPPClient client;
 
 	public AgentCommunicationComponent(Properties prop) {
 		this.prop = prop;
-		client = new XMPPClient(this.prop.getProperty("xmpp.jid"),
+		this.client = new XMPPClient(this.prop.getProperty("xmpp.jid"),
 				this.prop.getProperty("xmpp.password"),
 				this.prop.getProperty("xmpp.host"), Integer.parseInt(this.prop
 						.getProperty("xmpp.port")));
+		sleepingTime = Long.parseLong(this.prop.getProperty("green.sleepingTime"));
 	}
 
 	public Boolean init() {
 		XEP0077 register = new XEP0077();
 		try {
 			this.client.registerPlugin(register);
-			client.connect();
+			this.client.connect();
 			register.createAccount(this.prop.getProperty("xmpp.jid"),
 					this.prop.getProperty("xmpp.password"));
-			client.login();
-			client.process(false);
+			this.client.login();
+			this.client.process(false);
 
 		} catch (XMPPException e) {
 			Logger logger = Logger.getLogger("green.Agent");
@@ -81,6 +89,15 @@ public class AgentCommunicationComponent {
 				this.prop.getProperty("host.macAddress"));
 		query.addElement("hostName")
 				.setText(this.prop.getProperty("host.name"));
+	}
+	
+	public void start() {
+		executor.scheduleWithFixedDelay(new Runnable() {
+			@Override
+			public void run() {
+				sendIamAliveSignal();
+			}
+		}, 0, sleepingTime, TimeUnit.MILLISECONDS);
 	}
 
 }

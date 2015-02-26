@@ -21,7 +21,7 @@ public class Main {
 			AgentCommunicationComponent acc = new AgentCommunicationComponent(prop);
 			if (!acc.init())
 				return;
-			acc.sendIamAliveSignal();
+			acc.start();
 		} catch (Exception e) {
 			Logger logger = Logger.getLogger("green.agent");
 			logger.log(Level.SEVERE,"You must provide as parameter the"
