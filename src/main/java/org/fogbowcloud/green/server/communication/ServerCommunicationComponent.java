@@ -1,12 +1,10 @@
 package org.fogbowcloud.green.server.communication;
 
 import java.io.IOException;
-import java.util.LinkedList;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.fogbowcloud.green.server.communication.Agent;
 import org.fogbowcloud.green.server.core.greenStrategy.GreenStrategy;
 import org.jamppa.component.XMPPComponent;
 import org.xmpp.packet.IQ;
@@ -15,7 +13,6 @@ import org.xmpp.packet.IQ.Type;
 public class ServerCommunicationComponent extends XMPPComponent {
 
 	private GreenStrategy gs;
-	private LinkedList<Agent> listAgent = new LinkedList<Agent>();
 
 	public ServerCommunicationComponent(Properties prop, GreenStrategy gs) {
 		super(prop.getProperty("xmpp.jid"), prop.getProperty("xmpp.password"),
@@ -23,12 +20,6 @@ public class ServerCommunicationComponent extends XMPPComponent {
 						.getProperty("xmpp.port")));
 		this.gs = gs;
 		addHandlers();
-	}
-
-	public void setAgentAddress(String hostName, String jid, String ip,
-			String macAddress) {
-		Agent agent = new Agent(hostName, jid, ip, macAddress);
-		listAgent.add(agent);
 	}
 
 	public void wakeUpHost(String macAddress) {

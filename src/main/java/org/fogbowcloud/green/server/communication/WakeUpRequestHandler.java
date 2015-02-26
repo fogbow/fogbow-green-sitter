@@ -6,7 +6,7 @@ import org.xmpp.packet.IQ;
 
 public class WakeUpRequestHandler extends AbstractQueryHandler {
 	
-	private static final String NAMESPACE = "org.fogbowcloud.green.WakeUpRequest";
+	private static final String NAMESPACE = "org.fogbowcqueryloud.green.WakeUpRequest";
 	private final GreenStrategy gs;
 
 	public WakeUpRequestHandler(GreenStrategy gs) {
@@ -17,7 +17,6 @@ public class WakeUpRequestHandler extends AbstractQueryHandler {
 	@Override
 	public IQ handle(IQ query) {
 		//expected content format: the minimum CPU and the RAM (in GigaBytes) capacity required (eg. "1 8")
-		
 		int minCPU = Integer.parseInt(query.getElement().element("query").elementText("cpu"));
 		int minRAM = Integer.parseInt(query.getElement().element("query").elementText("ram"));
 	

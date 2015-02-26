@@ -26,7 +26,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 	private long graceTime;
 	private long sleepingTime;
 
-	private ScheduledExecutorService executor = Executors
+	private ScheduledExecutorService executorSendIdleHostsToBed = Executors
 			.newScheduledThreadPool(1);
 
 	public DefaultGreenStrategy(Properties greenProperties) {
@@ -78,7 +78,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 						 * if there is more than a half hour that the host is
 						 * napping than put it in sleeping host list
 						 */
-						if (nowTime - host.getUpdateTime() > this.graceTime) {
+						if (nowTime - host.getClodUpdatedTime() > this.graceTime) {
 							scc.sendIdleHostToBed(host.getName());
 							this.getSleepingHosts().add(host);
 							this.getNappingHosts().remove(host);
@@ -95,7 +95,13 @@ public class DefaultGreenStrategy implements GreenStrategy {
 	}
 	
 	public void setAgentAddress(String hostName, String jid, String ip, String macAddress) {
-		this.scc.setAgentAddress(hostName, jid, ip, macAddress);
+		for (Host host : this.allHosts){
+			if (host.getName() == hostName){
+				host.setJid(jid);
+				host.setIp(ip);
+				host.setMacAddress(macAddress);
+			}
+		}
 	}
 	
 	public void wakeUpSleepingHost(int minCPU, int minRAM) {
@@ -114,7 +120,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 	}
 
 	public void start() {
-		executor.scheduleWithFixedDelay(new Runnable() {
+		executorSendIdleHostsToBed.scheduleWithFixedDelay(new Runnable() {
 			@Override
 			public void run() {
 				sendIdleHostsToBed();

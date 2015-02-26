@@ -6,9 +6,13 @@ public class Host implements Comparable<Host> {
 	private int runningVM;
 	private boolean novaRunning;
 	private boolean novaEnable;
-	private long updateTime;
+	private long cloudUpdatedTime;
 	private int availableCPU;
 	private int availableRAM;
+	private String ip;
+	private String jid;
+	private String macAddress;
+	private long lastSeen;
 
 	public Host(String name, int runningVM, boolean novaRunning,
 			boolean novaEnable, long updateTime, int availableCPU,
@@ -17,7 +21,7 @@ public class Host implements Comparable<Host> {
 		this.runningVM = runningVM;
 		this.novaRunning = novaRunning;
 		this.novaEnable = novaEnable;
-		this.updateTime = updateTime;
+		this.cloudUpdatedTime = updateTime;
 		this.availableCPU = availableCPU;
 		this.availableRAM = availableRAM;
 	}
@@ -38,8 +42,8 @@ public class Host implements Comparable<Host> {
 		return runningVM;
 	}
 
-	public long getUpdateTime() {
-		return updateTime;
+	public long getClodUpdatedTime() {
+		return cloudUpdatedTime;
 	}
 
 	public boolean isNovaEnable() {
@@ -54,10 +58,53 @@ public class Host implements Comparable<Host> {
 		this.availableCPU = availableCPU;
 	}
 
+	public void setRunningVM(int runningVM) {
+		this.runningVM = runningVM;
+	}
+
+	public void setNovaRunning(boolean novaRunning) {
+		this.novaRunning = novaRunning;
+	}
+
+	public void setCloudUpdatedTime(long updateTime) {
+		this.cloudUpdatedTime = updateTime;
+	}
+
 	public void setAvailableRAM(int availableRAM) {
 		this.availableRAM = availableRAM;
 	}
 
+	public String getIp() {
+		return ip;
+	}
+
+	public void setIp(String ip) {
+		this.ip = ip;
+	}
+
+	public String getJid() {
+		return jid;
+	}
+
+	public void setJid(String jid) {
+		this.jid = jid;
+	}
+
+	public String getMacAddress() {
+		return macAddress;
+	}
+
+	public void setMacAddress(String macAddress) {
+		this.macAddress = macAddress;
+	}
+
+	public long getLastSeen() {
+		return lastSeen;
+	}
+	
+	public void setLastSeen(long lastSeen) {
+		this.lastSeen = lastSeen;
+	}
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -83,23 +130,27 @@ public class Host implements Comparable<Host> {
 		return true;
 	}
 
+
+
 	@Override
 	public String toString() {
 		return "Host [name=" + name + ", runningVM=" + runningVM
 				+ ", novaRunning=" + novaRunning + ", novaEnable=" + novaEnable
-				+ ", updateTime=" + updateTime + ", availableCPU="
-				+ availableCPU + ", availableRAM=" + availableRAM + "]";
+				+ ", cloudUpdatedTime=" + cloudUpdatedTime + ", availableCPU="
+				+ availableCPU + ", availableRAM=" + availableRAM + ", ip="
+				+ ip + ", jid=" + jid + ", macAddress=" + macAddress
+				+ ", lastSeen=" + lastSeen + "]";
 	}
 
 	@Override
 	public int compareTo(Host host) {
 		if (this.availableCPU != host.availableCPU) {
-			return host.availableCPU - this.availableCPU; 
+			return host.availableCPU - this.availableCPU;
 		}
 		/*
-		 * if the hosts have the same CPU capacities, wake the 
-		 * one with the biggest RAM
-		 * */
+		 * if the hosts have the same CPU capacities, wake the one with the
+		 * biggest RAM
+		 */
 		return host.availableRAM - this.availableRAM;
 	}
 }
