@@ -8,7 +8,7 @@ public interface GreenStrategy  {
 	
 	public void wakeUpSleepingHost(int minCPU, int minRAM);
 	
-	public void setAgentAddress(String Name, String JID, String IP, String macAddress);
+	public void receiveIamAliveInfo(String Name, String JID, String IP, String macAddress);
 	
 	public void setCommunicationComponent(ServerCommunicationComponent gscc);
 	

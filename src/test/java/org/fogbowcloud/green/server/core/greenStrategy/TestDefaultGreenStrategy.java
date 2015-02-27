@@ -25,7 +25,7 @@ public class TestDefaultGreenStrategy {
 		Mockito.when(date.getTime()).thenReturn(Time);
 		return date;	
 	}
-	
+
 	@Test 
 	public void testOneHostNapping(){
 		Host napping = new Host ("host1", 0, true, true, 0, 0, 0);
@@ -33,6 +33,8 @@ public class TestDefaultGreenStrategy {
 		hosts.add(napping);
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
 		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
+		Date date = this.createDateMock(3600001);
+		dgs.setDate(date);
 		dgs.sendIdleHostsToBed();
 		Assert.assertEquals(1, dgs.getNappingHosts().size());
 	}
@@ -40,18 +42,18 @@ public class TestDefaultGreenStrategy {
 	@Test
 	public void testOneHostSleeping(){
 		Host h1 = new Host ("host1", 0, true, true, 1800000,0,0);
+		h1.setMacAddress("mac");
 		List <Host> hosts = new LinkedList <Host> ();
 		hosts.add(h1);
-		
 		Date date = this.createDateMock(3600001);
 		ServerCommunicationComponent gscc = Mockito.mock(ServerCommunicationComponent.class);
-		Mockito.doNothing().when(gscc).wakeUpHost("host1");
+		Mockito.doNothing().when(gscc).wakeUpHost(h1.getMacAddress());
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
 		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
-		
+		dgs.setDate(date);
 		dgs.setCommunicationComponent(gscc);
 		dgs.sendIdleHostsToBed();
-		dgs.setDate(date);
+		h1.setNappingSince(1800000);
 		dgs.sendIdleHostsToBed();
 		Assert.assertEquals(1, dgs.getSleepingHosts().size());
 		Assert.assertEquals(0, dgs.getNappingHosts().size());
@@ -83,12 +85,19 @@ public class TestDefaultGreenStrategy {
 		Date date = this.createDateMock(3600001);
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
 		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
+		dgs.setDate(date);
 		ServerCommunicationComponent gscc = Mockito.mock(ServerCommunicationComponent.class);
 		Mockito.doNothing().when(gscc).wakeUpHost("wake");
+		Mockito.doNothing().when(gscc).wakeUpHost(mustWake.getMacAddress());
+		Mockito.doNothing().when(gscc).wakeUpHost(stilSleep.getMacAddress());
+		Mockito.doNothing().when(gscc).wakeUpHost(stilSleep2.getMacAddress());
+
 		
 		dgs.setCommunicationComponent(gscc);
 		dgs.sendIdleHostsToBed();
-		dgs.setDate(date);
+		mustWake.setNappingSince(1800000);
+		stilSleep.setNappingSince(1800000);
+		stilSleep2.setNappingSince(1800000);
 		dgs.sendIdleHostsToBed();
 		
 		dgs.wakeUpSleepingHost(2, 4);
@@ -114,8 +123,7 @@ public class TestDefaultGreenStrategy {
 	@Test
 	public void testMultipleWakableHosts(){
 		Host mustWake = new Host ("wake", 0, true, true, 1800000, 3, 8);
-		Host mustWake2 = new Host ("stil",0,true, true, 1800000, 3, 5);
-	
+		Host mustWake2 = new Host ("stil", 0, true, true, 1800000, 3, 5);
 		
 		List <Host> hosts = new LinkedList <Host> ();
 		hosts.add(mustWake);
@@ -127,9 +135,11 @@ public class TestDefaultGreenStrategy {
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
 		
 		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
+		dgs.setDate(date);
 		dgs.setCommunicationComponent(gscc);
 		dgs.sendIdleHostsToBed();
-		dgs.setDate(date);
+		mustWake.setNappingSince(1800000);
+		mustWake2.setNappingSince(1800000);
 		dgs.sendIdleHostsToBed();
 		dgs.wakeUpSleepingHost(2, 4);
 		

@@ -13,6 +13,7 @@ public class Host implements Comparable<Host> {
 	private String jid;
 	private String macAddress;
 	private long lastSeen;
+	private long nappingSince;
 
 	public Host(String name, int runningVM, boolean novaRunning,
 			boolean novaEnable, long updateTime, int availableCPU,
@@ -105,6 +106,14 @@ public class Host implements Comparable<Host> {
 	public void setLastSeen(long lastSeen) {
 		this.lastSeen = lastSeen;
 	}
+	public long getNappingSince() {
+		return nappingSince;
+	}
+
+	public void setNappingSince(long nappingSince) {
+		this.nappingSince = nappingSince;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

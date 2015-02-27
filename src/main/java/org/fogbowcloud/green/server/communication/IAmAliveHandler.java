@@ -22,7 +22,7 @@ public class IAmAliveHandler extends AbstractQueryHandler {
 		String jid = query.getFrom().toString();
 		String macAddress = query.getElement().element("query").elementText("macAddress");
 		
-		gs.setAgentAddress(hostName, jid, ip, macAddress);
+		gs.receiveIamAliveInfo(hostName, jid, ip, macAddress);
 
 		IQ resultIQ = IQ.createResultIQ(query);
 

@@ -1,26 +1,24 @@
 package org.fogbowcloud.green.agent.core;
 
 import java.io.IOException;
-import java.util.logging.Level;
 
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 public class TurnOff {
 
+	private static final Logger LOGGER = Logger.getLogger(TurnOff.class);
+	private static final String DEFAULT_SUSPEND_COMMAND = "pm-suspend";
+	
 	public void suspend(String command) {
-		String suspendCommand = "pm-suspend";
-		
-		if (command != ""){
-			suspendCommand = command;
+		if (command == null || command.isEmpty()){
+			command = DEFAULT_SUSPEND_COMMAND;
 		}
 
-		ProcessBuilder pb = new ProcessBuilder("sudo", "-S", suspendCommand);
+		ProcessBuilder pb = new ProcessBuilder("sudo", "-S", command);
 		try {
 			pb.start();
 		} catch (IOException e) {
-			Logger logger = Logger.getLogger("green.agent");
-			logger.log(Level.WARNING,
-					"It was not possible to turn down this host");
+			LOGGER.warn("It was not possible to turn down this host", e);
 		}
 	}
 

@@ -25,8 +25,11 @@ public class DefaultGreenStrategy implements GreenStrategy {
 
 	private long graceTime;
 	private long sleepingTime;
+	private long lostHostTime;
 
 	private ScheduledExecutorService executorSendIdleHostsToBed = Executors
+			.newScheduledThreadPool(1);
+	private ScheduledExecutorService executorVerifyLastTimeSeen = Executors
 			.newScheduledThreadPool(1);
 
 	public DefaultGreenStrategy(Properties greenProperties) {
@@ -38,19 +41,31 @@ public class DefaultGreenStrategy implements GreenStrategy {
 		this.lastUpdatedTime = new Date();
 		this.sleepingTime = Long.parseLong(greenProperties
 				.getProperty("greenstrategy.sleeptime"));
-		this.graceTime = Long.parseLong(greenProperties.get(
-				"greenstrategy.gracetime").toString());
+		this.graceTime = Long.parseLong(greenProperties.getProperty(
+				"greenstrategy.gracetime"));
+		this.lostHostTime = Long.parseLong(
+				greenProperties.getProperty("greenstrategy.lostAgentTime"));
 	}
 
-	public DefaultGreenStrategy(CloudInfoPlugin openStackPlugin, long graceTime) {
+	protected DefaultGreenStrategy(CloudInfoPlugin openStackPlugin, long graceTime) {
 		this.openStackPlugin = openStackPlugin;
 		this.graceTime = graceTime;
 	}
 
-	private void setAllHosts() {
+	protected void setAllHosts() {
+		//must write tests and implement a solution for not loosing host information while updated
 		this.allHosts = this.openStackPlugin.getHostInformation();
 	}
-
+	
+	protected void setLostHostTime(long lostHostTime) {
+		this.lostHostTime = lostHostTime;
+				
+	}
+	
+	public void setCommunicationComponent(ServerCommunicationComponent gscc) {
+		this.scc = gscc;
+	}
+	
 	protected void setDate(Date date) {
 		this.lastUpdatedTime = date;
 	}
@@ -62,6 +77,15 @@ public class DefaultGreenStrategy implements GreenStrategy {
 	public List<Host> getSleepingHosts() {
 		return sleepingHosts;
 	}
+	public void receiveIamAliveInfo(String hostName, String jid, String ip, String macAddress) {
+		for (Host host : this.allHosts){
+			if (host.getName() == hostName){
+				host.setJid(jid);
+				host.setIp(ip);
+				host.setMacAddress(macAddress);
+			}
+		}
+	}
 
 	public void sendIdleHostsToBed() {
 		this.setAllHosts();
@@ -70,16 +94,17 @@ public class DefaultGreenStrategy implements GreenStrategy {
 			if (host.isNovaEnable() && host.isNovaRunning()
 					&& (host.getRunningVM() == 0)) {
 				if (!this.getNappingHosts().contains(host)) {
+					host.setNappingSince(this.lastUpdatedTime.getTime());
 					this.getNappingHosts().add(host);
 				} else {
-					long nowTime = lastUpdatedTime.getTime();
+					long nowTime = this.lastUpdatedTime.getTime();
 					if (!this.getSleepingHosts().contains(host)) {
 						/*
 						 * if there is more than a half hour that the host is
 						 * napping than put it in sleeping host list
 						 */
-						if (nowTime - host.getClodUpdatedTime() > this.graceTime) {
-							scc.sendIdleHostToBed(host.getName());
+						if (nowTime - host.getNappingSince() > this.graceTime) {
+							scc.sendIdleHostToBed(host.getMacAddress());
 							this.getSleepingHosts().add(host);
 							this.getNappingHosts().remove(host);
 						}
@@ -90,23 +115,23 @@ public class DefaultGreenStrategy implements GreenStrategy {
 
 	}
 	
-	public void setCommunicationComponent(ServerCommunicationComponent gscc) {
-		this.scc = gscc;
-	}
-	
-	public void setAgentAddress(String hostName, String jid, String ip, String macAddress) {
+	public void checkHostsLastSeen() {
 		for (Host host : this.allHosts){
-			if (host.getName() == hostName){
-				host.setJid(jid);
-				host.setIp(ip);
-				host.setMacAddress(macAddress);
+			if (host.getLastSeen() - this.lastUpdatedTime.getTime() >  this.lostHostTime){
+				allHosts.remove(host);
+				if (this.sleepingHosts.contains(host)){
+					this.sleepingHosts.remove(host);
+				}
+				if (this.nappingHosts.contains(host)){
+					this.nappingHosts.remove(host);
+				}
 			}
 		}
 	}
 	
 	public void wakeUpSleepingHost(int minCPU, int minRAM) {
 		Collections.sort(this.sleepingHosts);
-		for (Host host : this.getSleepingHosts()) {
+		for (Host host : this.sleepingHosts) {
 			if (host.getAvailableCPU() >= minCPU) {
 				if (host.getAvailableRAM() >= minRAM) {
 					this.scc.wakeUpHost(host.getName());
@@ -120,6 +145,13 @@ public class DefaultGreenStrategy implements GreenStrategy {
 	}
 
 	public void start() {
+		executorVerifyLastTimeSeen.scheduleWithFixedDelay(new Runnable() {
+			@Override
+			public void run() {
+				checkHostsLastSeen();
+			}
+		}, 0, lostHostTime, TimeUnit.MILLISECONDS);
+		
 		executorSendIdleHostsToBed.scheduleWithFixedDelay(new Runnable() {
 			@Override
 			public void run() {
