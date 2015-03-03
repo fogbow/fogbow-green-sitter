@@ -17,6 +17,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 
 	private CloudInfoPlugin openStackPlugin;
 	private List<? extends Host> allHosts;
+	private List<Host> lostHosts = new LinkedList<Host>();
 	private List<Host> nappingHosts = new LinkedList<Host>();
 	private List<Host> sleepingHosts = new LinkedList<Host>();
 	private ServerCommunicationComponent scc;
@@ -41,31 +42,56 @@ public class DefaultGreenStrategy implements GreenStrategy {
 		this.lastUpdatedTime = new Date();
 		this.sleepingTime = Long.parseLong(greenProperties
 				.getProperty("greenstrategy.sleeptime"));
-		this.graceTime = Long.parseLong(greenProperties.getProperty(
-				"greenstrategy.gracetime"));
-		this.lostHostTime = Long.parseLong(
-				greenProperties.getProperty("greenstrategy.lostAgentTime"));
+		this.graceTime = Long.parseLong(greenProperties
+				.getProperty("greenstrategy.gracetime"));
+		this.lostHostTime = Long.parseLong(greenProperties
+				.getProperty("greenstrategy.lostAgentTime"));
 	}
 
-	protected DefaultGreenStrategy(CloudInfoPlugin openStackPlugin, long graceTime) {
+	protected DefaultGreenStrategy(CloudInfoPlugin openStackPlugin,
+			long graceTime) {
 		this.openStackPlugin = openStackPlugin;
 		this.graceTime = graceTime;
 	}
 
 	protected void setAllHosts() {
-		//must write tests and implement a solution for not loosing host information while updated
+		List<Host> nowHosts = new LinkedList<Host>();
+		nowHosts.addAll(this.allHosts);
 		this.allHosts = this.openStackPlugin.getHostInformation();
+
+		/*
+		 * Solution for eliminating hosts that don't send an "I am alive signal"
+		 * but still are in the cloud information
+		 */
+		for (Host host : this.allHosts) {
+			if (!nowHosts.contains(host)) {
+				this.lostHosts.add(host);
+				this.allHosts.remove(host);
+			}
+		}
+		
+		/*
+		 * Solution for not loosing data when it is updated
+		 */
+		for (Host host : this.allHosts){
+			Host fullHost = nowHosts.get(nowHosts.indexOf(host));
+			host.setIp(fullHost.getIp());
+			host.setJid(fullHost.getJid());
+			host.setMacAddress(fullHost.getMacAddress());
+			host.setNappingSince(fullHost.getNappingSince());
+			host.setLastSeen(fullHost.getLastSeen());
+		}
+
 	}
-	
+
 	protected void setLostHostTime(long lostHostTime) {
 		this.lostHostTime = lostHostTime;
-				
 	}
-	
+
 	public void setCommunicationComponent(ServerCommunicationComponent gscc) {
 		this.scc = gscc;
 	}
-	
+
 	protected void setDate(Date date) {
 		this.lastUpdatedTime = date;
 	}
@@ -77,9 +103,11 @@ public class DefaultGreenStrategy implements GreenStrategy {
 	public List<Host> getSleepingHosts() {
 		return sleepingHosts;
 	}
-	public void receiveIamAliveInfo(String hostName, String jid, String ip, String macAddress) {
-		for (Host host : this.allHosts){
-			if (host.getName() == hostName){
+
+	public void receiveIamAliveInfo(String hostName, String jid, String ip,
+			String macAddress) {
+		for (Host host : this.allHosts) {
+			if (host.getName() == hostName) {
 				host.setJid(jid);
 				host.setIp(ip);
 				host.setMacAddress(macAddress);
@@ -114,21 +142,22 @@ public class DefaultGreenStrategy implements GreenStrategy {
 		}
 
 	}
-	
+
 	public void checkHostsLastSeen() {
-		for (Host host : this.allHosts){
-			if (host.getLastSeen() - this.lastUpdatedTime.getTime() >  this.lostHostTime){
+		for (Host host : this.allHosts) {
+			if (host.getLastSeen() - this.lastUpdatedTime.getTime() > this.lostHostTime) {
 				allHosts.remove(host);
-				if (this.sleepingHosts.contains(host)){
+				if (this.sleepingHosts.contains(host)) {
 					this.sleepingHosts.remove(host);
 				}
-				if (this.nappingHosts.contains(host)){
+				if (this.nappingHosts.contains(host)) {
 					this.nappingHosts.remove(host);
 				}
+				this.lostHosts.add(host);
 			}
 		}
 	}
-	
+
 	public void wakeUpSleepingHost(int minCPU, int minRAM) {
 		Collections.sort(this.sleepingHosts);
 		for (Host host : this.sleepingHosts) {
@@ -151,7 +180,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 				checkHostsLastSeen();
 			}
 		}, 0, lostHostTime, TimeUnit.MILLISECONDS);
-		
+
 		executorSendIdleHostsToBed.scheduleWithFixedDelay(new Runnable() {
 			@Override
 			public void run() {

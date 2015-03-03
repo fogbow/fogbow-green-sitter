@@ -33,7 +33,7 @@ public class AgentCommunicationComponent {
 				this.prop.getProperty("xmpp.password"),
 				this.prop.getProperty("xmpp.host"), Integer.parseInt(this.prop
 						.getProperty("xmpp.port")));
-		sleepingTime = Long.parseLong(this.prop.getProperty("green.sleepingTime"));
+		this.sleepingTime = Long.parseLong(this.prop.getProperty("green.sleepingTime"));
 	}
 
 	public Boolean init() {

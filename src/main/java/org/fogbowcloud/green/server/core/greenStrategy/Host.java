@@ -9,11 +9,11 @@ public class Host implements Comparable<Host> {
 	private long cloudUpdatedTime;
 	private int availableCPU;
 	private int availableRAM;
-	private String ip;
-	private String jid;
-	private String macAddress;
-	private long lastSeen;
-	private long nappingSince;
+	private String ip = "";
+	private String jid = "";
+	private String macAddress = "";
+	private long lastSeen = 500000;
+	private long nappingSince = 0;
 
 	public Host(String name, int runningVM, boolean novaRunning,
 			boolean novaEnable, long updateTime, int availableCPU,
@@ -138,8 +138,6 @@ public class Host implements Comparable<Host> {
 			return false;
 		return true;
 	}
-
-
 
 	@Override
 	public String toString() {
