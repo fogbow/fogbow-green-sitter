@@ -25,6 +25,11 @@ public class TestDefaultGreenStrategy {
 		Mockito.when(date.getTime()).thenReturn(Time);
 		return date;	
 	}
+	
+	@Test 
+	public void testReceivingLostHostsFromCloud(){
+		
+	}
 
 	@Test 
 	public void testOneHostNapping(){
@@ -72,42 +77,44 @@ public class TestDefaultGreenStrategy {
 	}
 
 	@Test
-	public void testWakeUp(){
-		Host mustWake = new Host ("wake", 0, true, true, 1800000, 3, 8);
-		Host stilSleep = new Host ("stil",0,true, true, 1800000, 3, 2);
-		Host stilSleep2 = new Host ("stil2",0,true, true, 1800000, 1, 2);
-		
-		List <Host> hosts = new LinkedList <Host> ();
+	public void testWakeUp() {
+		Host mustWake = new Host("wake", 0, true, true, 1800000, 3, 8);
+		Host stilSleep = new Host("stil", 0, true, true, 1800000, 3, 2);
+		Host stilSleep2 = new Host("stil2", 0, true, true, 1800000, 1, 2);
+
+		List<Host> hosts = new LinkedList<Host>();
 		hosts.add(mustWake);
 		hosts.add(stilSleep);
 		hosts.add(stilSleep2);
-		
+
 		Date date = this.createDateMock(3600001);
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
 		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
 		dgs.setDate(date);
-		ServerCommunicationComponent gscc = Mockito.mock(ServerCommunicationComponent.class);
+		ServerCommunicationComponent gscc = Mockito
+				.mock(ServerCommunicationComponent.class);
 		Mockito.doNothing().when(gscc).wakeUpHost("wake");
 		Mockito.doNothing().when(gscc).wakeUpHost(mustWake.getMacAddress());
 		Mockito.doNothing().when(gscc).wakeUpHost(stilSleep.getMacAddress());
 		Mockito.doNothing().when(gscc).wakeUpHost(stilSleep2.getMacAddress());
 
-		
 		dgs.setCommunicationComponent(gscc);
 		dgs.sendIdleHostsToBed();
 		mustWake.setNappingSince(1800000);
 		stilSleep.setNappingSince(1800000);
 		stilSleep2.setNappingSince(1800000);
 		dgs.sendIdleHostsToBed();
-		
+
 		dgs.wakeUpSleepingHost(2, 4);
-		
-		List <Host> expetedResult = new LinkedList <Host> ();
+
+		List<Host> expetedResult = new LinkedList<Host>();
 		expetedResult.add(stilSleep);
 		expetedResult.add(stilSleep2);
-		
-		Assert.assertArrayEquals(expetedResult.toArray(), dgs.getSleepingHosts().toArray());
+
+		Assert.assertArrayEquals(expetedResult.toArray(), dgs
+				.getSleepingHosts().toArray());
 	}
+
 	
 	@Test
 	public void testNoHostSleeping(){

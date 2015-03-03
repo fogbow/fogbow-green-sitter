@@ -12,7 +12,7 @@ public class Host implements Comparable<Host> {
 	private String ip = "";
 	private String jid = "";
 	private String macAddress = "";
-	private long lastSeen = 500000;
+	private long lastSeen = 0;
 	private long nappingSince = 0;
 
 	public Host(String name, int runningVM, boolean novaRunning,

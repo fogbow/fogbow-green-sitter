@@ -46,42 +46,45 @@ public class DefaultGreenStrategy implements GreenStrategy {
 				.getProperty("greenstrategy.gracetime"));
 		this.lostHostTime = Long.parseLong(greenProperties
 				.getProperty("greenstrategy.lostAgentTime"));
+		this.allHosts = this.openStackPlugin.getHostInformation();
 	}
 
 	protected DefaultGreenStrategy(CloudInfoPlugin openStackPlugin,
 			long graceTime) {
 		this.openStackPlugin = openStackPlugin;
 		this.graceTime = graceTime;
+		this.allHosts = this.openStackPlugin.getHostInformation();
 	}
 
 	protected void setAllHosts() {
-		List<Host> nowHosts = new LinkedList<Host>();
-		nowHosts.addAll(this.allHosts);
-		this.allHosts = this.openStackPlugin.getHostInformation();
+			List<Host> nowHosts = new LinkedList<Host>();
+			nowHosts.addAll(this.allHosts);
+			this.allHosts = this.openStackPlugin.getHostInformation();
 
-		/*
-		 * Solution for eliminating hosts that don't send an "I am alive signal"
-		 * but still are in the cloud information
-		 */
-		for (Host host : this.allHosts) {
-			if (!nowHosts.contains(host)) {
-				this.lostHosts.add(host);
-				this.allHosts.remove(host);
+			/*
+			 * Solution for eliminating hosts that don't send an
+			 * "I am alive signal" but still are in the cloud information
+			 */
+			for (Host host : this.allHosts) {
+				if (!nowHosts.contains(host)) {
+					this.allHosts.remove(host);
+					if (!this.lostHosts.contains(host)) {
+						this.lostHosts.add(host);
+					}
+				}
 			}
-		}
-		
-		/*
-		 * Solution for not loosing data when it is updated
-		 */
-		for (Host host : this.allHosts){
-			Host fullHost = nowHosts.get(nowHosts.indexOf(host));
-			host.setIp(fullHost.getIp());
-			host.setJid(fullHost.getJid());
-			host.setMacAddress(fullHost.getMacAddress());
-			host.setNappingSince(fullHost.getNappingSince());
-			host.setLastSeen(fullHost.getLastSeen());
-		}
 
+			/*
+			 * Solution for not loosing data when it is updated
+			 */
+			for (Host host : this.allHosts) {
+				Host fullHost = nowHosts.get(nowHosts.indexOf(host));
+				host.setIp(fullHost.getIp());
+				host.setJid(fullHost.getJid());
+				host.setMacAddress(fullHost.getMacAddress());
+				host.setNappingSince(fullHost.getNappingSince());
+				host.setLastSeen(fullHost.getLastSeen());
+			}
 	}
 
 	protected void setLostHostTime(long lostHostTime) {
@@ -106,6 +109,14 @@ public class DefaultGreenStrategy implements GreenStrategy {
 
 	public void receiveIamAliveInfo(String hostName, String jid, String ip,
 			String macAddress) {
+
+		for (Host host : this.lostHosts) {
+			if (this.lostHosts.contains(host)) {
+				this.lostHosts.remove(host);
+				this.lostHosts.add(host);
+			}
+		}
+
 		for (Host host : this.allHosts) {
 			if (host.getName() == hostName) {
 				host.setJid(jid);
