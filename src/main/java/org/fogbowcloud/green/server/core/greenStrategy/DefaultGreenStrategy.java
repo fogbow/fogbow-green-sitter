@@ -16,7 +16,7 @@ import org.fogbowcloud.green.server.core.plugins.openstack.OpenStackInfoPlugin;
 public class DefaultGreenStrategy implements GreenStrategy {
 
 	private CloudInfoPlugin openStackPlugin;
-	private List<? extends Host> allHosts;
+	private List<? extends Host> allWakedHosts;
 	private List<Host> lostHosts = new LinkedList<Host>();
 	private List<Host> nappingHosts = new LinkedList<Host>();
 	private List<Host> sleepingHosts = new LinkedList<Host>();
@@ -46,30 +46,33 @@ public class DefaultGreenStrategy implements GreenStrategy {
 				.getProperty("greenstrategy.gracetime"));
 		this.lostHostTime = Long.parseLong(greenProperties
 				.getProperty("greenstrategy.lostAgentTime"));
-		this.allHosts = this.openStackPlugin.getHostInformation();
+		this.allWakedHosts = this.openStackPlugin.getHostInformation();
 	}
 
 	protected DefaultGreenStrategy(CloudInfoPlugin openStackPlugin,
 			long graceTime) {
 		this.openStackPlugin = openStackPlugin;
 		this.graceTime = graceTime;
-		this.allHosts = this.openStackPlugin.getHostInformation();
+		this.allWakedHosts = this.openStackPlugin.getHostInformation();
 	}
 
 	protected void setAllHosts() {
 			List<Host> nowHosts = new LinkedList<Host>();
-			nowHosts.addAll(this.allHosts);
-			this.allHosts = this.openStackPlugin.getHostInformation();
+			nowHosts.addAll(this.allWakedHosts);
+			this.allWakedHosts = this.openStackPlugin.getHostInformation();
 
 			/*
 			 * Solution for eliminating hosts that don't send an
 			 * "I am alive signal" but still are in the cloud information
 			 */
-			for (Host host : this.allHosts) {
-				if (!nowHosts.contains(host)) {
-					this.allHosts.remove(host);
-					if (!this.lostHosts.contains(host)) {
+			for (Host host : this.allWakedHosts) {
+				if (! nowHosts.contains(host)) {
+					this.allWakedHosts.remove(host);
+					if (! this.lostHosts.contains(host)) {
 						this.lostHosts.add(host);
+					}
+					if(this.nappingHosts.contains(host)){
+						this.nappingHosts.remove(host);
 					}
 				}
 			}
@@ -77,7 +80,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 			/*
 			 * Solution for not loosing data when it is updated
 			 */
-			for (Host host : this.allHosts) {
+			for (Host host : this.allWakedHosts) {
 				Host fullHost = nowHosts.get(nowHosts.indexOf(host));
 				host.setIp(fullHost.getIp());
 				host.setJid(fullHost.getJid());
@@ -106,6 +109,10 @@ public class DefaultGreenStrategy implements GreenStrategy {
 	public List<Host> getSleepingHosts() {
 		return sleepingHosts;
 	}
+	
+	public List<? extends Host> getAllWakedHosts() {
+		return allWakedHosts;
+	}
 
 	public void receiveIamAliveInfo(String hostName, String jid, String ip,
 			String macAddress) {
@@ -117,7 +124,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 			}
 		}
 
-		for (Host host : this.allHosts) {
+		for (Host host : this.allWakedHosts) {
 			if (host.getName() == hostName) {
 				host.setJid(jid);
 				host.setIp(ip);
@@ -129,7 +136,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 	public void sendIdleHostsToBed() {
 		this.setAllHosts();
 
-		for (Host host : this.allHosts) {
+		for (Host host : this.allWakedHosts) {
 			if (host.isNovaEnable() && host.isNovaRunning()
 					&& (host.getRunningVM() == 0)) {
 				if (!this.getNappingHosts().contains(host)) {
@@ -144,27 +151,34 @@ public class DefaultGreenStrategy implements GreenStrategy {
 						 */
 						if (nowTime - host.getNappingSince() > this.graceTime) {
 							scc.sendIdleHostToBed(host.getMacAddress());
-							this.getSleepingHosts().add(host);
-							this.getNappingHosts().remove(host);
+							this.sleepingHosts.add(host);
 						}
 					}
 				}
 			}
 		}
-
+		for (Host host : sleepingHosts) {
+			if (this.allWakedHosts.contains(host)){
+				this.allWakedHosts.remove(host);
+			}
+			if (this.nappingHosts.contains(host)) {
+				this.nappingHosts.remove(host);
+			}
+		}
 	}
 
 	public void checkHostsLastSeen() {
-		for (Host host : this.allHosts) {
-			if (host.getLastSeen() - this.lastUpdatedTime.getTime() > this.lostHostTime) {
-				allHosts.remove(host);
-				if (this.sleepingHosts.contains(host)) {
-					this.sleepingHosts.remove(host);
-				}
+		for (Host host : this.allWakedHosts) {
+			if (this.lastUpdatedTime.getTime() - host.getLastSeen() > this.lostHostTime) {
 				if (this.nappingHosts.contains(host)) {
 					this.nappingHosts.remove(host);
 				}
 				this.lostHosts.add(host);
+			}
+		}
+		for (Host host: this.lostHosts) {
+			if(this.allWakedHosts.contains(host)) {
+			    this.allWakedHosts.remove(host);
 			}
 		}
 	}
