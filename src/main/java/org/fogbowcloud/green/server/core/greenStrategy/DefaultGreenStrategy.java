@@ -56,6 +56,34 @@ public class DefaultGreenStrategy implements GreenStrategy {
 		this.allWakedHosts = this.openStackPlugin.getHostInformation();
 	}
 
+	protected void setLostHostTime(long lostHostTime) {
+		this.lostHostTime = lostHostTime;
+	}
+	
+	public void setCommunicationComponent(ServerCommunicationComponent gscc) {
+		this.scc = gscc;
+	}
+	
+	protected void setDate(Date date) {
+		this.lastUpdatedTime = date;
+	}
+	
+	public List<Host> getNappingHosts() {
+		return nappingHosts;
+	}
+	
+	public List<Host> getSleepingHosts() {
+		return sleepingHosts;
+	}
+	
+	public List<? extends Host> getAllWakedHosts() {
+		return allWakedHosts;
+	}
+	
+	public List<Host> getLostHosts() {
+		return lostHosts;
+	}
+	
 	protected void setAllHosts() {
 			List<Host> nowHosts = new LinkedList<Host>();
 			nowHosts.addAll(this.allWakedHosts);
@@ -74,6 +102,9 @@ public class DefaultGreenStrategy implements GreenStrategy {
 					if(this.nappingHosts.contains(host)){
 						this.nappingHosts.remove(host);
 					}
+					if (this.sleepingHosts.contains(host)){
+						this.sleepingHosts.remove(host);
+					}
 				}
 			}
 
@@ -90,29 +121,6 @@ public class DefaultGreenStrategy implements GreenStrategy {
 			}
 	}
 
-	protected void setLostHostTime(long lostHostTime) {
-		this.lostHostTime = lostHostTime;
-	}
-
-	public void setCommunicationComponent(ServerCommunicationComponent gscc) {
-		this.scc = gscc;
-	}
-
-	protected void setDate(Date date) {
-		this.lastUpdatedTime = date;
-	}
-
-	public List<Host> getNappingHosts() {
-		return nappingHosts;
-	}
-
-	public List<Host> getSleepingHosts() {
-		return sleepingHosts;
-	}
-	
-	public List<? extends Host> getAllWakedHosts() {
-		return allWakedHosts;
-	}
 
 	public void receiveIamAliveInfo(String hostName, String jid, String ip,
 			String macAddress) {
