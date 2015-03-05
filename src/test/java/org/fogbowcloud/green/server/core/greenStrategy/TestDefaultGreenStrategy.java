@@ -28,20 +28,45 @@ public class TestDefaultGreenStrategy {
 
 	@Test
 	public void testCheckHostLastSeen() {
-	    Host lost = new Host ("lost", 0, true, true, 0, 0, 0);
-	    lost.setLastSeen(0);
-	    Host still = new Host ("still", 0, true, true, 0, 0, 0);
-	    still.setLastSeen(1500000);
+		Host lost = new Host("lost", 0, true, true, 0, 0, 0);
+		lost.setLastSeen(0);
+		Host still = new Host("still", 0, true, true, 0, 0, 0);
+		still.setLastSeen(1500000);
 		List<Host> hosts = new LinkedList<Host>();
-        hosts.add(lost);
-        hosts.add(still);
+		hosts.add(lost);
+		hosts.add(still);
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
 		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
 		Date date = this.createDateMock(1500001);
 		dgs.setDate(date);
 		dgs.setLostHostTime(1500000);
 		dgs.checkHostsLastSeen();
-        Assert.assertEquals(1, dgs.getAllWakedHosts().size());
+		Assert.assertEquals(1, dgs.getAllWakedHosts().size());
+	}
+
+	@Test
+	public void testNoLoosingData() {
+		// Test if green strategy is loosing data while updating the hosts
+		Host host1 = new Host("host1", 0, true, true, 0, 0, 0);
+		Host host2 = new Host("host2", 0, true, true, 0, 0, 0);
+		List<Host> hosts = new LinkedList<Host>();
+		hosts.add(host2);
+		hosts.add(host1);
+		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
+		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
+		Host upHost1 = new Host("host1", 0, true, true, 0, 0, 0);
+		Host upHost2 = new Host("host2", 0, true, true, 0, 0, 0);
+		upHost1.setJid("test1@test.com");
+		upHost2.setJid("test2@test.com");
+		List<Host> updatedHosts = new LinkedList<Host>();
+		updatedHosts.add(upHost1);
+		updatedHosts.add(upHost2);
+		dgs.setAllHosts(updatedHosts);
+		dgs.updateAllHosts();
+		Assert.assertEquals("test2@test.com", dgs.getAllWakedHosts().get(0)
+				.getJid());
+		Assert.assertEquals("test1@test.com", dgs.getAllWakedHosts().get(1)
+				.getJid());
 	}
 
 	@Test
@@ -77,23 +102,23 @@ public class TestDefaultGreenStrategy {
 		Assert.assertEquals(1, dgs.getSleepingHosts().size());
 		Assert.assertEquals(0, dgs.getNappingHosts().size());
 	}
-	
+
 	@Test
 	public void testUpdatingLostHost() {
-	    Host lost = new Host ("lost", 0, true, true, 0, 0, 0);
-	    lost.setLastSeen(0);
-	    Host still = new Host ("still", 0, true, true, 0, 0, 0);
-	    still.setLastSeen(1500000);
+		Host lost = new Host("lost", 0, true, true, 0, 0, 0);
+		lost.setLastSeen(0);
+		Host still = new Host("still", 0, true, true, 0, 0, 0);
+		still.setLastSeen(1500000);
 		List<Host> hosts = new LinkedList<Host>();
-        hosts.add(lost);
-        hosts.add(still);
+		hosts.add(lost);
+		hosts.add(still);
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
 		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
 		Date date = this.createDateMock(1500001);
 		dgs.setDate(date);
 		dgs.setLostHostTime(1500000);
 		dgs.checkHostsLastSeen();
-		dgs.setAllHosts();
+		dgs.updateAllHosts();
 		Assert.assertEquals(1, dgs.getAllWakedHosts().size());
 		Assert.assertEquals(1, dgs.getLostHosts().size());
 	}

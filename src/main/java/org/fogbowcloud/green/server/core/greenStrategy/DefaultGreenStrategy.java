@@ -60,12 +60,16 @@ public class DefaultGreenStrategy implements GreenStrategy {
 		this.lostHostTime = lostHostTime;
 	}
 	
-	public void setCommunicationComponent(ServerCommunicationComponent gscc) {
-		this.scc = gscc;
+	protected void setAllHosts(List<Host> hosts){
+		this.allWakedHosts = hosts;
 	}
 	
 	protected void setDate(Date date) {
 		this.lastUpdatedTime = date;
+	}
+	
+	public void setCommunicationComponent(ServerCommunicationComponent gscc) {
+		this.scc = gscc;
 	}
 	
 	public List<Host> getNappingHosts() {
@@ -84,7 +88,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 		return lostHosts;
 	}
 	
-	protected void setAllHosts() {
+	protected void updateAllHosts() {
 			List<Host> nowHosts = new LinkedList<Host>();
 			nowHosts.addAll(this.allWakedHosts);
 			this.allWakedHosts = this.openStackPlugin.getHostInformation();
@@ -133,7 +137,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 		}
 
 		for (Host host : this.allWakedHosts) {
-			if (host.getName() == hostName) {
+			if (host.getName().equals(hostName)) {
 				host.setJid(jid);
 				host.setIp(ip);
 				host.setMacAddress(macAddress);
@@ -142,7 +146,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 	}
 
 	public void sendIdleHostsToBed() {
-		this.setAllHosts();
+		this.updateAllHosts();
 
 		for (Host host : this.allWakedHosts) {
 			if (host.isNovaEnable() && host.isNovaRunning()
