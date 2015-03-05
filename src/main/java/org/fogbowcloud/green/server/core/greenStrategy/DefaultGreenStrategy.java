@@ -148,6 +148,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 				host.setJid(jid);
 				host.setIp(ip);
 				host.setMacAddress(macAddress);
+				host.setLastSeen(lastUpdatedTime.getTime());
 			}
 		}
 	}

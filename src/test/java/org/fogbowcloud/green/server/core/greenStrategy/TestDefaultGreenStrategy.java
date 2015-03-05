@@ -51,11 +51,15 @@ public class TestDefaultGreenStrategy {
 		hosts.add(toBeFound);
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
 		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
+		Date date = this.createDateMock(1500001);
+		dgs.setDate(date);
 		dgs.setLostHosts(hosts);
 		dgs.receiveIamAliveInfo("found", "test@test.com", "123.456.789",
 				" A1:B2:C3:D4:E5:67");
 		Assert.assertEquals(0, dgs.getLostHosts().size());
 		Assert.assertEquals(1, dgs.getAllWakedHosts().size());
+		Assert.assertEquals("test@test.com", dgs.getAllWakedHosts().get(0)
+				.getJid());
 	}
 
 	@Test
