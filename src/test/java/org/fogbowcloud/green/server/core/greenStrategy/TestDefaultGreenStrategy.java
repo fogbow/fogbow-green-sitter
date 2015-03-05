@@ -45,8 +45,22 @@ public class TestDefaultGreenStrategy {
 	}
 
 	@Test
+	public void testRetrievingHosts() {
+		Host toBeFound = new Host("found", 0, true, true, 0, 0, 0);
+		List<Host> hosts = new LinkedList<Host>();
+		hosts.add(toBeFound);
+		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
+		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
+		dgs.setLostHosts(hosts);
+		dgs.receiveIamAliveInfo("found", "test@test.com", "123.456.789",
+				" A1:B2:C3:D4:E5:67");
+		Assert.assertEquals(0, dgs.getLostHosts().size());
+		Assert.assertEquals(1, dgs.getAllWakedHosts().size());
+	}
+
+	@Test
 	public void testNoLoosingData() {
-		// Test if green strategy is loosing data while updating the hosts
+		// It tests if green strategy is loosing data while updating the hosts
 		Host host1 = new Host("host1", 0, true, true, 0, 0, 0);
 		Host host2 = new Host("host2", 0, true, true, 0, 0, 0);
 		List<Host> hosts = new LinkedList<Host>();

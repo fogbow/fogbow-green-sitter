@@ -64,6 +64,10 @@ public class DefaultGreenStrategy implements GreenStrategy {
 		this.allWakedHosts = hosts;
 	}
 	
+	protected void setLostHosts(List<Host> hosts){
+		this.lostHosts = hosts;
+	}
+	
 	protected void setDate(Date date) {
 		this.lastUpdatedTime = date;
 	}
@@ -132,7 +136,10 @@ public class DefaultGreenStrategy implements GreenStrategy {
 		for (Host host : this.lostHosts) {
 			if (this.lostHosts.contains(host)) {
 				this.lostHosts.remove(host);
-				this.lostHosts.add(host);
+				LinkedList<Host> aux = new LinkedList<Host>();
+				aux.addAll(this.allWakedHosts);
+				aux.add(host);
+				this.allWakedHosts = aux;
 			}
 		}
 
