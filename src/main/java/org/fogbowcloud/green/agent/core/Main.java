@@ -3,11 +3,13 @@ package org.fogbowcloud.green.agent.core;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Logger;
 
 public class Main {
-	
+	private static final Logger LOGGER = Logger.getLogger(Main.class);
+
 	public static Properties getProp(String path) throws IOException {
 		Properties props = new Properties();
 		FileInputStream file = new FileInputStream(path);
@@ -15,7 +17,15 @@ public class Main {
 		return props;
 	}
 	
+	private static void configureLog4j() {
+		ConsoleAppender console = new ConsoleAppender();
+		console.setThreshold(org.apache.log4j.Level.OFF);
+		console.activateOptions();
+		Logger.getRootLogger().addAppender(console);
+	}
+	
 	public static void main(String[] args) {
+		configureLog4j();
 		try {
 			Properties prop = getProp(args[0]);
 			AgentCommunicationComponent acc = new AgentCommunicationComponent(prop);
@@ -23,9 +33,8 @@ public class Main {
 				return;
 			acc.start();
 		} catch (Exception e) {
-			Logger logger = Logger.getLogger("green.agent");
-			logger.log(Level.SEVERE,"You must provide as parameter the"
-					+ " path for the configuration file");
+			LOGGER.fatal("You must provide as parameter the"
+					+ " path for the configuration file", e);
 		}
 	}
 }

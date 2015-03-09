@@ -9,11 +9,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.Logger;
 import org.fogbowcloud.green.server.communication.ServerCommunicationComponent;
 import org.fogbowcloud.green.server.core.plugins.CloudInfoPlugin;
 import org.fogbowcloud.green.server.core.plugins.openstack.OpenStackInfoPlugin;
 
 public class DefaultGreenStrategy implements GreenStrategy {
+	
+	private static final Logger LOGGER = Logger.getLogger(DefaultGreenStrategy.class);
 
 	private CloudInfoPlugin openStackPlugin;
 	private List<? extends Host> allWakedHosts;
@@ -49,6 +52,9 @@ public class DefaultGreenStrategy implements GreenStrategy {
 		this.allWakedHosts = this.openStackPlugin.getHostInformation();
 	}
 
+	/*
+	 * Constructor used for tests
+	 * */
 	protected DefaultGreenStrategy(CloudInfoPlugin openStackPlugin,
 			long graceTime) {
 		this.openStackPlugin = openStackPlugin;
@@ -140,6 +146,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 				aux.addAll(this.allWakedHosts);
 				aux.add(host);
 				this.allWakedHosts = aux;
+				LOGGER.info("Host " + host.getName() + " was found");
 			}
 		}
 
@@ -171,6 +178,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 						 */
 						if (nowTime - host.getNappingSince() > this.graceTime) {
 							scc.sendIdleHostToBed(host.getMacAddress());
+							LOGGER.info("Host " + host.getName() + " was sent to bed");
 							this.sleepingHosts.add(host);
 						}
 					}
@@ -194,6 +202,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 					this.nappingHosts.remove(host);
 				}
 				this.lostHosts.add(host);
+				LOGGER.info("Host " + host.getName() + " was found");
 			}
 		}
 		for (Host host: this.lostHosts) {
@@ -223,6 +232,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 			@Override
 			public void run() {
 				checkHostsLastSeen();
+				LOGGER.info("Checked when hosts were seen");
 			}
 		}, 0, lostHostTime, TimeUnit.MILLISECONDS);
 
@@ -230,6 +240,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 			@Override
 			public void run() {
 				sendIdleHostsToBed();
+				LOGGER.info("Sent idle hosts to bed");
 			}
 		}, 0, sleepingTime, TimeUnit.MILLISECONDS);
 	}

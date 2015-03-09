@@ -4,14 +4,12 @@ import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import org.apache.log4j.Logger;
 import org.dom4j.tree.DefaultElement;
 import org.jamppa.client.XMPPClient;
 import org.jamppa.client.plugin.xep0077.XEP0077;
 import org.jivesoftware.smack.PacketListener;
-import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.filter.PacketFilter;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.Packet;
@@ -21,6 +19,8 @@ import org.xmpp.packet.IQ.Type;
 public class AgentCommunicationComponent {
 
 	private static final String NAMESPACE = "org.fogbowcloud.green.IAmAlive";
+	private static final Logger LOGGER = Logger.getLogger(AgentCommunicationComponent.class);
+
 	private ScheduledExecutorService executor = Executors
 			.newScheduledThreadPool(1);
 	private Properties prop;
@@ -28,12 +28,16 @@ public class AgentCommunicationComponent {
 	private XMPPClient client;
 
 	public AgentCommunicationComponent(Properties prop) {
+		try{
 		this.prop = prop;
 		this.client = new XMPPClient(this.prop.getProperty("xmpp.jid"),
 				this.prop.getProperty("xmpp.password"),
 				this.prop.getProperty("xmpp.host"), Integer.parseInt(this.prop
 						.getProperty("xmpp.port")));
 		this.sleepingTime = Long.parseLong(this.prop.getProperty("green.sleepingTime"));
+		}catch (Exception e){
+			LOGGER.fatal("The configuration file is not correct" + e);
+		}
 	}
 
 	public Boolean init() {
@@ -45,10 +49,10 @@ public class AgentCommunicationComponent {
 					this.prop.getProperty("xmpp.password"));
 			this.client.login();
 			this.client.process(false);
+			LOGGER.info("connected to the server");
 
-		} catch (XMPPException e) {
-			Logger logger = Logger.getLogger("green.Agent");
-			logger.log(Level.SEVERE, "It was not possible to connect");
+		} catch (Exception e) {
+            LOGGER.fatal("It was not possible to connect to server " + e);
 			return false;
 		}
 		client.getConnection().addPacketListener(new PacketListener() {

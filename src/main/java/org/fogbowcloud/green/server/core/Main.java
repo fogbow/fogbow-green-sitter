@@ -3,13 +3,15 @@ package org.fogbowcloud.green.server.core;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.ConsoleAppender;
 import org.fogbowcloud.green.server.communication.ServerCommunicationComponent;
 import org.fogbowcloud.green.server.core.greenStrategy.DefaultGreenStrategy;
 
 public class Main {
+	
+	private static final Logger LOGGER = Logger.getLogger(Main.class);
 
 	public static Properties getProp(String path) throws IOException {
 		Properties props = new Properties();
@@ -18,7 +20,15 @@ public class Main {
 		return props;
 	}
 
+	private static void configureLog4j() {
+		ConsoleAppender console = new ConsoleAppender();
+		console.setThreshold(org.apache.log4j.Level.OFF);
+		console.activateOptions();
+		Logger.getRootLogger().addAppender(console);
+	}
+
 	public static void main(String[] args) {
+		configureLog4j();
 		try {
 			Properties prop = getProp(args[0]);
 			DefaultGreenStrategy gs = new DefaultGreenStrategy(prop);
@@ -26,11 +36,11 @@ public class Main {
 					prop, gs);
 			gs.setCommunicationComponent(scc);
 			gs.start();
+			LOGGER.info("Green Server started");
 			scc.process(true);
 		} catch (Exception e) {
-			Logger logger = Logger.getLogger("green.server");
-			logger.log(Level.WARNING, "You must provide as parameter the"
-					+ " path for the configuration file");
+			LOGGER.fatal("You must provide as parameter the"
+					+ " path for the configuration file", e);
 		}
 	}
 }
