@@ -225,9 +225,9 @@ public class TestDefaultGreenStrategy {
 		mustWake.setNappingSince(1800000);
 		mustWake2.setNappingSince(1800000);
 		dgs.sendIdleHostsToBed();
-		
+
 		Assert.assertEquals("wake", dgs.getSleepingHosts().peek().getName());
-		
+
 		dgs.wakeUpSleepingHost(2, 4);
 
 		Assert.assertEquals(1, dgs.getSleepingHosts().size());

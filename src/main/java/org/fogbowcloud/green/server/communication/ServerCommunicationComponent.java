@@ -11,7 +11,8 @@ import org.xmpp.packet.IQ.Type;
 
 public class ServerCommunicationComponent extends XMPPComponent {
 
-	private static final Logger LOGGER = Logger.getLogger(ServerCommunicationComponent.class);
+	private static final Logger LOGGER = Logger
+			.getLogger(ServerCommunicationComponent.class);
 	private GreenStrategy gs;
 
 	public ServerCommunicationComponent(Properties prop, GreenStrategy gs) {

@@ -15,14 +15,17 @@ import org.fogbowcloud.green.server.core.plugins.CloudInfoPlugin;
 import org.fogbowcloud.green.server.core.plugins.openstack.OpenStackInfoPlugin;
 
 public class DefaultGreenStrategy implements GreenStrategy {
-	
-	private static final Logger LOGGER = Logger.getLogger(DefaultGreenStrategy.class);
+
+	private static final Logger LOGGER = Logger
+			.getLogger(DefaultGreenStrategy.class);
 
 	private CloudInfoPlugin openStackPlugin;
 	private List<? extends Host> allWakedHosts;
 	private List<Host> lostHosts = new LinkedList<Host>();
-	/*The List hosts in grace period is used to keep those hosts
-	 * which are not been used by the system but not for too long*/
+	/*
+	 * The List hosts in grace period is used to keep those hosts which are not
+	 * been used by the system but not for too long
+	 */
 	private List<Host> hostsInGracePeriod = new LinkedList<Host>();
 	private PriorityQueue<Host> sleepingHosts = new PriorityQueue<Host>();
 	private ServerCommunicationComponent scc;
@@ -56,7 +59,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 
 	/*
 	 * Constructor used for tests
-	 * */
+	 */
 	protected DefaultGreenStrategy(CloudInfoPlugin openStackPlugin,
 			long graceTime) {
 		this.openStackPlugin = openStackPlugin;
@@ -67,76 +70,75 @@ public class DefaultGreenStrategy implements GreenStrategy {
 	protected void setLostHostTime(long lostHostTime) {
 		this.lostHostTime = lostHostTime;
 	}
-	
-	protected void setAllHosts(List<Host> hosts){
+
+	protected void setAllHosts(List<Host> hosts) {
 		this.allWakedHosts = hosts;
 	}
-	
-	protected void setLostHosts(List<Host> hosts){
+
+	protected void setLostHosts(List<Host> hosts) {
 		this.lostHosts = hosts;
 	}
-	
+
 	protected void setDate(Date date) {
 		this.lastUpdatedTime = date;
 	}
-	
+
 	public void setCommunicationComponent(ServerCommunicationComponent gscc) {
 		this.scc = gscc;
 	}
-	
+
 	public List<Host> getHostsInGracePeriod() {
 		return hostsInGracePeriod;
 	}
-	
+
 	public PriorityQueue<Host> getSleepingHosts() {
 		return sleepingHosts;
 	}
-	
+
 	public List<? extends Host> getAllWakedHosts() {
 		return allWakedHosts;
 	}
-	
+
 	public List<Host> getLostHosts() {
 		return lostHosts;
 	}
-	
-	protected void updateAllHosts() {
-			List<Host> nowHosts = new LinkedList<Host>();
-			nowHosts.addAll(this.allWakedHosts);
-			this.allWakedHosts = this.openStackPlugin.getHostInformation();
 
-			/*
-			 * Solution for eliminating hosts that don't send an
-			 * "I am alive signal" but still are in the cloud information
-			 */
-			for (Host host : this.allWakedHosts) {
-				if (! nowHosts.contains(host)) {
-					this.allWakedHosts.remove(host);
-					if (! this.lostHosts.contains(host)) {
-						this.lostHosts.add(host);
-					}
-					if(this.hostsInGracePeriod.contains(host)){
-						this.hostsInGracePeriod.remove(host);
-					}
-					if (this.sleepingHosts.contains(host)){
-						this.sleepingHosts.remove(host);
-					}
+	protected void updateAllHosts() {
+		List<Host> nowHosts = new LinkedList<Host>();
+		nowHosts.addAll(this.allWakedHosts);
+		this.allWakedHosts = this.openStackPlugin.getHostInformation();
+
+		/*
+		 * Solution for eliminating hosts that don't send an "I am alive signal"
+		 * but still are in the cloud information
+		 */
+		for (Host host : this.allWakedHosts) {
+			if (!nowHosts.contains(host)) {
+				this.allWakedHosts.remove(host);
+				if (!this.lostHosts.contains(host)) {
+					this.lostHosts.add(host);
+				}
+				if (this.hostsInGracePeriod.contains(host)) {
+					this.hostsInGracePeriod.remove(host);
+				}
+				if (this.sleepingHosts.contains(host)) {
+					this.sleepingHosts.remove(host);
 				}
 			}
+		}
 
-			/*
-			 * Solution for not loosing data when it is updated
-			 */
-			for (Host host : this.allWakedHosts) {
-				Host fullHost = nowHosts.get(nowHosts.indexOf(host));
-				host.setIp(fullHost.getIp());
-				host.setJid(fullHost.getJid());
-				host.setMacAddress(fullHost.getMacAddress());
-				host.setNappingSince(fullHost.getNappingSince());
-				host.setLastSeen(fullHost.getLastSeen());
-			}
+		/*
+		 * Solution for not loosing data when it is updated
+		 */
+		for (Host host : this.allWakedHosts) {
+			Host fullHost = nowHosts.get(nowHosts.indexOf(host));
+			host.setIp(fullHost.getIp());
+			host.setJid(fullHost.getJid());
+			host.setMacAddress(fullHost.getMacAddress());
+			host.setNappingSince(fullHost.getNappingSince());
+			host.setLastSeen(fullHost.getLastSeen());
+		}
 	}
-
 
 	public void receiveIamAliveInfo(String hostName, String jid, String ip,
 			String macAddress) {
@@ -180,7 +182,8 @@ public class DefaultGreenStrategy implements GreenStrategy {
 						 */
 						if (nowTime - host.getNappingSince() > this.graceTime) {
 							scc.sendIdleHostToBed(host.getMacAddress());
-							LOGGER.info("Host " + host.getName() + " was sent to bed");
+							LOGGER.info("Host " + host.getName()
+									+ " was sent to bed");
 							this.sleepingHosts.add(host);
 						}
 					}
@@ -188,7 +191,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 			}
 		}
 		for (Host host : sleepingHosts) {
-			if (this.allWakedHosts.contains(host)){
+			if (this.allWakedHosts.contains(host)) {
 				this.allWakedHosts.remove(host);
 			}
 			if (this.hostsInGracePeriod.contains(host)) {
@@ -207,9 +210,9 @@ public class DefaultGreenStrategy implements GreenStrategy {
 				LOGGER.info("Host " + host.getName() + " was found");
 			}
 		}
-		for (Host host: this.lostHosts) {
-			if(this.allWakedHosts.contains(host)) {
-			    this.allWakedHosts.remove(host);
+		for (Host host : this.lostHosts) {
+			if (this.allWakedHosts.contains(host)) {
+				this.allWakedHosts.remove(host);
 			}
 		}
 	}
@@ -223,9 +226,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 		if (host.getAvailableRAM() >= minRAM) {
 			this.scc.wakeUpHost(host.getName());
 			this.sleepingHosts.remove(host);
-			return;
 		}
-
 	}
 
 	public void start() {
