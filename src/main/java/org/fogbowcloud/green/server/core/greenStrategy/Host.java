@@ -9,9 +9,9 @@ public class Host implements Comparable<Host> {
 	private long cloudUpdatedTime;
 	private int availableCPU;
 	private int availableRAM;
-	private String ip = "";
-	private String jid = "";
-	private String macAddress = "";
+	private String ip = null;
+	private String jid = null;
+	private String macAddress = null;
 	private long lastSeen = 0;
 	private long nappingSince = 0;
 

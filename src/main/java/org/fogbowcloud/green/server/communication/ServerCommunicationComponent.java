@@ -2,9 +2,8 @@ package org.fogbowcloud.green.server.communication;
 
 import java.io.IOException;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import org.apache.log4j.Logger;
 import org.fogbowcloud.green.server.core.greenStrategy.GreenStrategy;
 import org.jamppa.component.XMPPComponent;
 import org.xmpp.packet.IQ;
@@ -12,6 +11,7 @@ import org.xmpp.packet.IQ.Type;
 
 public class ServerCommunicationComponent extends XMPPComponent {
 
+	private static final Logger LOGGER = Logger.getLogger(ServerCommunicationComponent.class);
 	private GreenStrategy gs;
 
 	public ServerCommunicationComponent(Properties prop, GreenStrategy gs) {
@@ -27,14 +27,13 @@ public class ServerCommunicationComponent extends XMPPComponent {
 			ProcessBuilder pb = new ProcessBuilder("powerwake", macAddress);
 			pb.start();
 		} catch (IOException e) {
-			Logger logger = Logger.getLogger("green.server");
-			logger.log(Level.WARNING, "It was not possible to wake " + macAddress);
+			LOGGER.warn("It was not possible to wake " + macAddress + e);
 		}
 	}
 
-	public void sendIdleHostToBed(String host) {
+	public void sendIdleHostToBed(String hostJID) {
 		IQ iq = new IQ(Type.set);
-		iq.setTo("asdas");
+		iq.setTo(hostJID);
 		iq.getElement().addElement("query", "org.fogbowcloud.green.GoToBed");
 		send(iq);
 	}

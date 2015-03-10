@@ -1,9 +1,9 @@
 package org.fogbowcloud.green.server.core.greenStrategy;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -21,8 +21,10 @@ public class DefaultGreenStrategy implements GreenStrategy {
 	private CloudInfoPlugin openStackPlugin;
 	private List<? extends Host> allWakedHosts;
 	private List<Host> lostHosts = new LinkedList<Host>();
-	private List<Host> nappingHosts = new LinkedList<Host>();
-	private List<Host> sleepingHosts = new LinkedList<Host>();
+	/*The List hosts in grace period is used to keep those hosts
+	 * which are not been used by the system but not for too long*/
+	private List<Host> hostsInGracePeriod = new LinkedList<Host>();
+	private PriorityQueue<Host> sleepingHosts = new PriorityQueue<Host>();
 	private ServerCommunicationComponent scc;
 
 	private Date lastUpdatedTime;
@@ -82,11 +84,11 @@ public class DefaultGreenStrategy implements GreenStrategy {
 		this.scc = gscc;
 	}
 	
-	public List<Host> getNappingHosts() {
-		return nappingHosts;
+	public List<Host> getHostsInGracePeriod() {
+		return hostsInGracePeriod;
 	}
 	
-	public List<Host> getSleepingHosts() {
+	public PriorityQueue<Host> getSleepingHosts() {
 		return sleepingHosts;
 	}
 	
@@ -113,8 +115,8 @@ public class DefaultGreenStrategy implements GreenStrategy {
 					if (! this.lostHosts.contains(host)) {
 						this.lostHosts.add(host);
 					}
-					if(this.nappingHosts.contains(host)){
-						this.nappingHosts.remove(host);
+					if(this.hostsInGracePeriod.contains(host)){
+						this.hostsInGracePeriod.remove(host);
 					}
 					if (this.sleepingHosts.contains(host)){
 						this.sleepingHosts.remove(host);
@@ -166,9 +168,9 @@ public class DefaultGreenStrategy implements GreenStrategy {
 		for (Host host : this.allWakedHosts) {
 			if (host.isNovaEnable() && host.isNovaRunning()
 					&& (host.getRunningVM() == 0)) {
-				if (!this.getNappingHosts().contains(host)) {
+				if (!this.getHostsInGracePeriod().contains(host)) {
 					host.setNappingSince(this.lastUpdatedTime.getTime());
-					this.getNappingHosts().add(host);
+					this.getHostsInGracePeriod().add(host);
 				} else {
 					long nowTime = this.lastUpdatedTime.getTime();
 					if (!this.getSleepingHosts().contains(host)) {
@@ -189,8 +191,8 @@ public class DefaultGreenStrategy implements GreenStrategy {
 			if (this.allWakedHosts.contains(host)){
 				this.allWakedHosts.remove(host);
 			}
-			if (this.nappingHosts.contains(host)) {
-				this.nappingHosts.remove(host);
+			if (this.hostsInGracePeriod.contains(host)) {
+				this.hostsInGracePeriod.remove(host);
 			}
 		}
 	}
@@ -198,8 +200,8 @@ public class DefaultGreenStrategy implements GreenStrategy {
 	public void checkHostsLastSeen() {
 		for (Host host : this.allWakedHosts) {
 			if (this.lastUpdatedTime.getTime() - host.getLastSeen() > this.lostHostTime) {
-				if (this.nappingHosts.contains(host)) {
-					this.nappingHosts.remove(host);
+				if (this.hostsInGracePeriod.contains(host)) {
+					this.hostsInGracePeriod.remove(host);
 				}
 				this.lostHosts.add(host);
 				LOGGER.info("Host " + host.getName() + " was found");
@@ -213,18 +215,17 @@ public class DefaultGreenStrategy implements GreenStrategy {
 	}
 
 	public void wakeUpSleepingHost(int minCPU, int minRAM) {
-		Collections.sort(this.sleepingHosts);
-		for (Host host : this.sleepingHosts) {
-			if (host.getAvailableCPU() >= minCPU) {
-				if (host.getAvailableRAM() >= minRAM) {
-					this.scc.wakeUpHost(host.getName());
-					this.sleepingHosts.remove(host);
-					return;
-				}
-			} else {
-				return;
-			}
+		Host host = this.sleepingHosts.peek();
+
+		if (host.getAvailableCPU() < minCPU) {
+			return;
 		}
+		if (host.getAvailableRAM() >= minRAM) {
+			this.scc.wakeUpHost(host.getName());
+			this.sleepingHosts.remove(host);
+			return;
+		}
+
 	}
 
 	public void start() {
