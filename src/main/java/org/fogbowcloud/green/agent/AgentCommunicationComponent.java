@@ -1,4 +1,4 @@
-package org.fogbowcloud.green.agent.core;
+package org.fogbowcloud.green.agent;
 
 import java.util.Properties;
 import java.util.concurrent.Executors;
