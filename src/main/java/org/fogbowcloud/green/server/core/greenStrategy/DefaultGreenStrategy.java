@@ -1,5 +1,6 @@
 package org.fogbowcloud.green.server.core.greenStrategy;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -219,22 +220,30 @@ public class DefaultGreenStrategy implements GreenStrategy {
 
 	public void wakeUpSleepingHost(int minCPU, int minRAM) {
 		Host host = this.sleepingHosts.peek();
+		try {
+			if (host.getAvailableCPU() < minCPU) {
+				LOGGER.info("Tried to wake hosts but no hosts were found");
+				return;
+			}
+			if (host.getAvailableRAM() >= minRAM) {
+				this.scc.wakeUpHost(host.getName());
+				this.sleepingHosts.remove(host);
+				LOGGER.info("Waked " + host);
+			}
 
-		if (host.getAvailableCPU() < minCPU) {
-			return;
-		}
-		if (host.getAvailableRAM() >= minRAM) {
-			this.scc.wakeUpHost(host.getName());
-			this.sleepingHosts.remove(host);
+		} catch (IOException e) {
+			LOGGER.warn("It was not possible to wake " + host +
+					"it may be lost or there is a network problem" + e);
 		}
 	}
-
+	
 	public void start() {
 		executorVerifyLastTimeSeen.scheduleWithFixedDelay(new Runnable() {
 			@Override
 			public void run() {
 				checkHostsLastSeen();
-				LOGGER.info("Checked when hosts were seen");
+				LOGGER.info("Checked when hosts were seen"
+						+ " Lost Hosts now");
 			}
 		}, 0, lostHostTime, TimeUnit.MILLISECONDS);
 
@@ -242,7 +251,8 @@ public class DefaultGreenStrategy implements GreenStrategy {
 			@Override
 			public void run() {
 				sendIdleHostsToBed();
-				LOGGER.info("Sent idle hosts to bed");
+				LOGGER.info("Sent idle hosts to bed: "
+						+ "Sleeping Hosts now "+sleepingHosts);
 			}
 		}, 0, sleepingTime, TimeUnit.MILLISECONDS);
 	}

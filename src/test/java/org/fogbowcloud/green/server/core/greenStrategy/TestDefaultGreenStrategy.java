@@ -1,5 +1,6 @@
 package org.fogbowcloud.green.server.core.greenStrategy;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -109,7 +110,12 @@ public class TestDefaultGreenStrategy {
 		Date date = this.createDateMock(3600001);
 		ServerCommunicationComponent gscc = Mockito
 				.mock(ServerCommunicationComponent.class);
-		Mockito.doNothing().when(gscc).wakeUpHost(h1.getMacAddress());
+		try {
+			Mockito.doNothing().when(gscc).wakeUpHost(h1.getMacAddress());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
 		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
 		dgs.setDate(date);
@@ -170,10 +176,15 @@ public class TestDefaultGreenStrategy {
 		dgs.setDate(date);
 		ServerCommunicationComponent gscc = Mockito
 				.mock(ServerCommunicationComponent.class);
-		Mockito.doNothing().when(gscc).wakeUpHost("wake");
-		Mockito.doNothing().when(gscc).wakeUpHost(mustWake.getMacAddress());
-		Mockito.doNothing().when(gscc).wakeUpHost(stilSleep.getMacAddress());
-		Mockito.doNothing().when(gscc).wakeUpHost(stilSleep2.getMacAddress());
+		try {
+			Mockito.doNothing().when(gscc).wakeUpHost("wake");
+			Mockito.doNothing().when(gscc).wakeUpHost(mustWake.getMacAddress());
+			Mockito.doNothing().when(gscc).wakeUpHost(stilSleep.getMacAddress());
+			Mockito.doNothing().when(gscc).wakeUpHost(stilSleep2.getMacAddress());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		dgs.setCommunicationComponent(gscc);
 		dgs.sendIdleHostsToBed();
@@ -215,7 +226,12 @@ public class TestDefaultGreenStrategy {
 		Date date = this.createDateMock(3600001);
 		ServerCommunicationComponent gscc = Mockito
 				.mock(ServerCommunicationComponent.class);
-		Mockito.doNothing().when(gscc).wakeUpHost("wake");
+		try {
+			Mockito.doNothing().when(gscc).wakeUpHost("wake");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
 
 		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);

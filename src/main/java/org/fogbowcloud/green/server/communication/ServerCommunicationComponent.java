@@ -3,7 +3,6 @@ package org.fogbowcloud.green.server.communication;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
 import org.fogbowcloud.green.server.core.greenStrategy.GreenStrategy;
 import org.jamppa.component.XMPPComponent;
 import org.xmpp.packet.IQ;
@@ -11,8 +10,6 @@ import org.xmpp.packet.IQ.Type;
 
 public class ServerCommunicationComponent extends XMPPComponent {
 
-	private static final Logger LOGGER = Logger
-			.getLogger(ServerCommunicationComponent.class);
 	private GreenStrategy gs;
 
 	public ServerCommunicationComponent(Properties prop, GreenStrategy gs) {
@@ -23,13 +20,9 @@ public class ServerCommunicationComponent extends XMPPComponent {
 		addHandlers();
 	}
 
-	public void wakeUpHost(String macAddress) {
-		try {
-			ProcessBuilder pb = new ProcessBuilder("powerwake", macAddress);
-			pb.start();
-		} catch (IOException e) {
-			LOGGER.warn("It was not possible to wake " + macAddress + e);
-		}
+	public void wakeUpHost(String macAddress) throws IOException {
+		ProcessBuilder pb = new ProcessBuilder("powerwake", macAddress);
+		pb.start();
 	}
 
 	public void sendIdleHostToBed(String hostJID) {
