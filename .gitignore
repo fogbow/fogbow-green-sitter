@@ -2,4 +2,6 @@
 .classpath
 .project
 /.settings
-/green.properties
+/server.properties
+/agent.properties
+/log4j.properties
