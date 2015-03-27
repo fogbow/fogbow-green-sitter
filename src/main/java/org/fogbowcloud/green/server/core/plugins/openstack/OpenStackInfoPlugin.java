@@ -4,35 +4,41 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.fogbowcloud.green.server.core.greenStrategy.Host;
 import org.fogbowcloud.green.server.core.plugins.CloudInfoPlugin;
 import org.openstack4j.api.OSClient;
 import org.openstack4j.api.compute.ext.ZoneService;
-import org.openstack4j.model.compute.ext.AvailabilityZones.AvailabilityZone;
-import org.openstack4j.model.compute.ext.AvailabilityZones.NovaService;
-import org.openstack4j.model.compute.ext.AvailabilityZones.ZoneState;
+import org.openstack4j.model.compute.ext.AvailabilityZone;
+import org.openstack4j.model.compute.ext.AvailabilityZone.NovaService;
+import org.openstack4j.model.compute.ext.AvailabilityZone.ZoneState;
 import org.openstack4j.model.compute.ext.Hypervisor;
 import org.openstack4j.openstack.OSFactory;
 
 public class OpenStackInfoPlugin implements CloudInfoPlugin {
 
-	private OSClient os;
+	private String endpoint;
+	private String username;
+	private String password;
+	private String tenantname;
 
 	public OpenStackInfoPlugin(String endpoint, String username,
 			String password, String tenantname) {
+		this.endpoint = endpoint;
+		this.username = username;
+		this.password = password;
+		this.tenantname = tenantname;
+	}
 
-		this(OSFactory.builder().endpoint(endpoint)
+	protected OSClient os() {
+		return OSFactory.builder().endpoint(endpoint)
 				.credentials(username, password).tenantName(tenantname)
-				.authenticate());
+				.authenticate();
 	}
-
-	protected OpenStackInfoPlugin(OSClient os) {
-		this.os = os;
-	}
-
+	
 	private List<String> getHostsName() {
-		List<? extends Hypervisor> hypervisors = os.compute().hypervisors()
+		List<? extends Hypervisor> hypervisors = os().compute().hypervisors()
 				.list();
 		List<String> hostsName = new LinkedList<String>();
 		for (Hypervisor hypervisor : hypervisors) {
@@ -42,7 +48,7 @@ public class OpenStackInfoPlugin implements CloudInfoPlugin {
 	}
 
 	private HashMap<String, Integer> getAvailableRam() {
-		List<? extends Hypervisor> hypervisors = os.compute().hypervisors()
+		List<? extends Hypervisor> hypervisors = os().compute().hypervisors()
 				.list();
 		HashMap<String, Integer> availableRam = new HashMap<String, Integer>();
 		for (Hypervisor hypervisor : hypervisors) {
@@ -53,7 +59,7 @@ public class OpenStackInfoPlugin implements CloudInfoPlugin {
 	}
 
 	private HashMap<String, Integer> getAvailableCPU() {
-		List<? extends Hypervisor> hypervisors = os.compute().hypervisors()
+		List<? extends Hypervisor> hypervisors = os().compute().hypervisors()
 				.list();
 		HashMap<String, Integer> availableCPU = new HashMap<String, Integer>();
 		for (Hypervisor hypervisor : hypervisors) {
@@ -64,7 +70,7 @@ public class OpenStackInfoPlugin implements CloudInfoPlugin {
 	}
 
 	private HashMap<String, Integer> getRunningVM() {
-		List<? extends Hypervisor> hypervisors = os.compute().hypervisors()
+		List<? extends Hypervisor> hypervisors = os().compute().hypervisors()
 				.list();
 		HashMap<String, Integer> runningVM = new HashMap<String, Integer>();
 		for (Hypervisor hypervisor : hypervisors) {
@@ -86,25 +92,24 @@ public class OpenStackInfoPlugin implements CloudInfoPlugin {
 	}
 
 	private HashMap<String, NovaHost> getNovaState(List<String> hostsName) {
-		ZoneService zones = os.compute().zones();
+		ZoneService zones = os().compute().zones();
 		HashMap<String, NovaHost> novaRunning = new HashMap<String, NovaHost>();
 		List<? extends AvailabilityZone> availabilityZoneList = zones
-				.getAvailabilityZones().getAvailabilityZoneList();
+				.list();
 
 		for (AvailabilityZone availabilityZone : availabilityZoneList) {
 			ZoneState zoneState = availabilityZone.getZoneState();
 			if (zoneState.getAvailable()) {
 				for (String host : hostsName) {
 					try {
-						HashMap<String, ? extends NovaService> hostService = availabilityZone
-								.getHosts().get(host.toLowerCase());
+						Map<String, Map<String, ? extends NovaService>> hostsInAvailabilityZone = availabilityZone.getHosts();
+						Map<String, ? extends NovaService> hostService = hostsInAvailabilityZone.get(host.toLowerCase());
 						NovaService ns = hostService.get("nova-compute");
 						if (ns != null) {
 							String active = ns.getStatusActive();
-							String available = ns.getAvailable();
+							boolean available = ns.getAvailable();
 							novaRunning.put(host,
-									new NovaHost(available.equals("true"),
-											active.equals("true")));
+									new NovaHost(available, active.equals("true")));
 						}
 					} catch (Exception e) {
 						// Ignoring exceptions for hosts in unavailable zones

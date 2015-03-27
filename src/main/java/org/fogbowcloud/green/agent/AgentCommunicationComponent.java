@@ -6,6 +6,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
+import org.dom4j.Element;
 import org.dom4j.tree.DefaultElement;
 import org.jamppa.client.XMPPClient;
 import org.jamppa.client.plugin.xep0077.XEP0077;
@@ -13,9 +14,9 @@ import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.filter.PacketFilter;
 import org.xmpp.packet.IQ;
+import org.xmpp.packet.IQ.Type;
 import org.xmpp.packet.JID;
 import org.xmpp.packet.Packet;
-import org.xmpp.packet.IQ.Type;
 
 public class AgentCommunicationComponent {
 
@@ -81,14 +82,18 @@ public class AgentCommunicationComponent {
 				if (!from.toString().equals(prop.getProperty("xmpp.component"))) {
 					return false;
 				}
-				try {
-					String ns = packet.getElement().element("query")
-							.getNamespaceURI();
-					if (!ns.equals("org.fogbowcloud.green.GoToBed")) {
-						return false;
-					}
-				} catch (Exception e) {
-					LOGGER.info("There not a query element in the packet", e);
+				if (packet.getError() != null) {
+					LOGGER.warn("IAmAlive packet returned an error: " + packet.toXML());
+					return false;
+				}
+				Element queryEl = packet.getElement().element("query");
+				if (queryEl == null) {
+					LOGGER.info("There is no query element in the response packet");
+					return false;
+				}
+				String ns = queryEl.getNamespaceURI();
+				if (!ns.equals("org.fogbowcloud.green.GoToBed")) {
+					LOGGER.info("Query element has a different namespace: " + ns);
 					return false;
 				}
 
@@ -110,7 +115,8 @@ public class AgentCommunicationComponent {
 				this.prop.getProperty("host.macAddress"));
 		query.addElement("hostName")
 				.setText(this.prop.getProperty("host.name"));
-		LOGGER.info("Sent I am alive signal");
+		client.getConnection().sendPacket(iq);
+		LOGGER.info("IAmAlive signal sent to " + iq.getTo());
 	}
 
 	public void start() {

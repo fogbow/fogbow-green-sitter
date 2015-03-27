@@ -1,12 +1,9 @@
 package org.fogbowcloud.green.server.core.plugins.openstack;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
-import org.openstack4j.model.compute.ext.AvailabilityZones.AvailabilityZone;
-import org.openstack4j.model.compute.ext.AvailabilityZones.NovaService;
-import org.openstack4j.model.compute.ext.AvailabilityZones.ZoneState;
+import org.openstack4j.model.compute.ext.AvailabilityZone;
 
 public class AvailabilityZoneImpl implements AvailabilityZone {
 
@@ -16,11 +13,11 @@ public class AvailabilityZoneImpl implements AvailabilityZone {
 	private static final long serialVersionUID = -2420582290244591446L;
 	
 	private final ZoneState zoneState;
-	private final Map<String, HashMap<String, ? extends NovaService>> hosts;
+	private final Map<String, Map<String, ? extends NovaService>> hosts;
 	private final String zoneName;
 	
 	public AvailabilityZoneImpl(ZoneState zoneState,
-			Map<String, HashMap<String, ? extends NovaService>> hosts,
+			Map<String, Map<String, ? extends NovaService>> hosts,
 			String zoneName) {
 		this.zoneState = zoneState;
 		this.hosts = hosts;
@@ -33,7 +30,7 @@ public class AvailabilityZoneImpl implements AvailabilityZone {
 	}
 
 	@Override
-	public Map<String, HashMap<String, ? extends NovaService>> getHosts() {
+	public Map<String, Map<String, ? extends NovaService>> getHosts() {
 		return hosts;
 	}
 
@@ -67,18 +64,18 @@ public class AvailabilityZoneImpl implements AvailabilityZone {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		private String available;
+		private boolean available;
 		private String active;
 		private Date updateTime;
 		
-		public NovaServiceImpl(String available, String active, Date updateTime) {
+		public NovaServiceImpl(boolean available, String active, Date updateTime) {
 			this.available = available;
 			this.active = active;
 			this.updateTime = updateTime;
 		}
 
 		@Override
-		public String getAvailable() {
+		public boolean getAvailable() {
 			return available;
 		}
 

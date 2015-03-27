@@ -118,5 +118,11 @@ public class HypervisorTestImpl implements Hypervisor {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	public CPUInfo getCPUInfo() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }
