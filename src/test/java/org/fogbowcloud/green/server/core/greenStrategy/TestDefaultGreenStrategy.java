@@ -28,21 +28,21 @@ public class TestDefaultGreenStrategy {
 	public void testCheckHostLastSeen() {
 		Host lost = new Host("lost", 0, true, true, 0, 0, 0);
 		lost.setLastSeen(0);
-		Host still = new Host("still", 0, true, true, 0, 0, 0);
+		Host stilll = new Host("stilll", 0, true, true, 0, 0, 0);
 		List<Host> hosts = new LinkedList<Host>();
 		hosts.add(lost);
-		hosts.add(still);
+		hosts.add(stilll);
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
 		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
 		DateWrapper date = this.createDateMock(0);
 		dgs.setDateWrapper(date);
 		dgs.receiveIamAliveInfo("lost", "lost@test.com", "123.456.789.10", "A1:B2:C3:D4:E5:67");
-		dgs.receiveIamAliveInfo("still", "still@test.com", "123.456.789.10", "A1:B2:C3:D4:E5:67");
+		dgs.receiveIamAliveInfo("stilll", "stilll@test.com", "123.456.789.10", "A1:B2:C3:D4:E5:67");
 		dgs.setExpirationTime(1500000);
 		dgs.checkExpiredHosts();
 		DateWrapper newDate = this.createDateMock(1500001);
 		dgs.setDateWrapper(newDate);
-		dgs.receiveIamAliveInfo("still", "still@test.com", "123.456.789.10", "A1:B2:C3:D4:E5:67");
+		dgs.receiveIamAliveInfo("stilll", "stilll@test.com", "123.456.789.10", "A1:B2:C3:D4:E5:67");
 		dgs.checkExpiredHosts();
 		Assert.assertEquals(1, dgs.getHostsAwake().size());
 	}
@@ -91,7 +91,7 @@ public class TestDefaultGreenStrategy {
 	}
 
 	@Test
-	public void testOneHostNapping() {
+	public void testOneHostInGracePeriod() {
 		Host napping = new Host("host1", 0, true, true, 0, 0, 0);
 		List<Host> hosts = new LinkedList<Host>();
 		hosts.add(napping);
@@ -99,6 +99,9 @@ public class TestDefaultGreenStrategy {
 		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
 		DateWrapper date = this.createDateMock(3600001);
 		dgs.setDateWrapper(date);
+		dgs.receiveIamAliveInfo("host1", "wake@test.com", "123.456.789.10", "A1:B2:C3:D4:E5:67");
+		DateWrapper date1 = this.createDateMock(5400002);
+		dgs.setDateWrapper(date1);
 		dgs.sendIdleHostsToBed();
 		Assert.assertEquals(1, dgs.getHostsInGracePeriod().size());
 	}
@@ -106,23 +109,25 @@ public class TestDefaultGreenStrategy {
 	@Test
 	public void testOneHostSleeping() {
 		Host h1 = new Host("host1", 0, true, true, 1800000, 0, 0);
-		h1.setMacAddress("mac");
 		List<Host> hosts = new LinkedList<Host>();
 		hosts.add(h1);
-		DateWrapper date = this.createDateMock(3600001);
 		ServerCommunicationComponent gscc = Mockito
 				.mock(ServerCommunicationComponent.class);
 		try {
 			Mockito.doNothing().when(gscc).wakeUpHost(h1.getMacAddress());
 		} catch (IOException e) {
-			//Ignorating exception because it always do nothing
+			//Ignorating exception because it always does nothing
 		}
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
 		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
+		DateWrapper date = this.createDateMock(3600001);
 		dgs.setDateWrapper(date);
 		dgs.setCommunicationComponent(gscc);
+		dgs.receiveIamAliveInfo("host1", "wake@test.com", "123.456.789.10", "A1:B2:C3:D4:E5:67");
 		dgs.sendIdleHostsToBed();
 		h1.setNappingSince(1800000);
+		DateWrapper date1 = this.createDateMock(5400002);
+		dgs.setDateWrapper(date1);
 		dgs.sendIdleHostsToBed();
 		Assert.assertEquals(1, dgs.getSleepingHosts().size());
 		Assert.assertEquals(0, dgs.getHostsInGracePeriod().size());
@@ -132,15 +137,15 @@ public class TestDefaultGreenStrategy {
 	public void testUpdatingLostHost() {
 		Host lost = new Host("lost", 0, true, true, 0, 0, 0);
 		lost.setLastSeen(0);
-		Host still = new Host("still", 0, true, true, 0, 0, 0);
+		Host stilll = new Host("stilll", 0, true, true, 0, 0, 0);
 		List<Host> hosts = new LinkedList<Host>();
 		hosts.add(lost);
-		hosts.add(still);
+		hosts.add(stilll);
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
 		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
 		DateWrapper date = this.createDateMock(1500001);
 		dgs.setDateWrapper(date);
-		dgs.receiveIamAliveInfo("host", "still@test.com", "123.456.789.10", "A1:B2:C3:D4:E5:67");
+		dgs.receiveIamAliveInfo("host", "stilll@test.com", "123.456.789.10", "A1:B2:C3:D4:E5:67");
 		dgs.setExpirationTime(1500000);
 		dgs.checkExpiredHosts();
 		dgs.updateAllHosts();
@@ -162,13 +167,13 @@ public class TestDefaultGreenStrategy {
 	@Test
 	public void testWakeUp() {
 		Host mustWake = new Host("wake", 0, true, true, 1800000, 3, 8);
-		Host stilSleep = new Host("stil", 0, true, true, 1800000, 3, 2);
-		Host stilSleep2 = new Host("stil2", 0, true, true, 1800000, 1, 2);
+		Host stillSleep = new Host("still", 0, true, true, 1800000, 3, 2);
+		Host stillSleep2 = new Host("still2", 0, true, true, 1800000, 1, 2);
 
 		List<Host> hosts = new LinkedList<Host>();
 		hosts.add(mustWake);
-		hosts.add(stilSleep);
-		hosts.add(stilSleep2);
+		hosts.add(stillSleep);
+		hosts.add(stillSleep2);
 
 		DateWrapper date = this.createDateMock(3600001);
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
@@ -179,25 +184,28 @@ public class TestDefaultGreenStrategy {
 		try {
 			Mockito.doNothing().when(gscc).wakeUpHost("wake");
 			Mockito.doNothing().when(gscc).wakeUpHost(mustWake.getMacAddress());
-			Mockito.doNothing().when(gscc).wakeUpHost(stilSleep.getMacAddress());
-			Mockito.doNothing().when(gscc).wakeUpHost(stilSleep2.getMacAddress());
+			Mockito.doNothing().when(gscc).wakeUpHost(stillSleep.getMacAddress());
+			Mockito.doNothing().when(gscc).wakeUpHost(stillSleep2.getMacAddress());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//Ignorating exception because it always does nothing
 		}
-
+		dgs.receiveIamAliveInfo("wake", "wake@test.com", "123.456.789.10", "A1:B2:C3:D4:E5:67");
+		dgs.receiveIamAliveInfo("still", "still1@test.com", "123.456.789.10", "A1:B2:C3:D4:E5:67");
+		dgs.receiveIamAliveInfo("still2", "still2@test.com", "123.456.789.10", "A1:B2:C3:D4:E5:67");
 		dgs.setCommunicationComponent(gscc);
 		dgs.sendIdleHostsToBed();
 		mustWake.setNappingSince(1800000);
-		stilSleep.setNappingSince(1800000);
-		stilSleep2.setNappingSince(1800000);
+		stillSleep.setNappingSince(1800000);
+		stillSleep2.setNappingSince(1800000);
+		DateWrapper date1 = this.createDateMock(5400002);
+		dgs.setDateWrapper(date1);
 		dgs.sendIdleHostsToBed();
 
 		dgs.wakeUpSleepingHost(2, 4);
 
 		List<Host> expetedResult = new LinkedList<Host>();
-		expetedResult.add(stilSleep);
-		expetedResult.add(stilSleep2);
+		expetedResult.add(stillSleep);
+		expetedResult.add(stillSleep2);
 
 		Assert.assertArrayEquals(expetedResult.toArray(), dgs
 				.getSleepingHosts().toArray());
@@ -217,36 +225,36 @@ public class TestDefaultGreenStrategy {
 	@Test
 	public void testMultipleWakableHosts() {
 		Host mustWake = new Host("wake", 0, true, true, 1800000, 3, 8);
-		Host mustWake2 = new Host("stil", 0, true, true, 1800000, 3, 5);
-
+		Host mustWake2 = new Host("still", 0, true, true, 1800000, 3, 5);
 		List<Host> hosts = new LinkedList<Host>();
 		hosts.add(mustWake);
 		hosts.add(mustWake2);
-
-		DateWrapper date = this.createDateMock(3600001);
 		ServerCommunicationComponent gscc = Mockito
 				.mock(ServerCommunicationComponent.class);
 		try {
 			Mockito.doNothing().when(gscc).wakeUpHost("wake");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//Ignorating exception because it always does nothing
 		}
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
-
+		DateWrapper date = this.createDateMock(3600001);
 		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
 		dgs.setDateWrapper(date);
 		dgs.setCommunicationComponent(gscc);
+		dgs.receiveIamAliveInfo("wake", "wake@test.com", "123.456.789.10", "A1:B2:C3:D4:E5:67");
+		dgs.receiveIamAliveInfo("still", "still@test.com", "123.456.789.10", "A1:B2:C3:D4:E5:67");
 		dgs.sendIdleHostsToBed();
 		mustWake.setNappingSince(1800000);
 		mustWake2.setNappingSince(1800000);
+		DateWrapper date1 = this.createDateMock(5400002);
+		dgs.setDateWrapper(date1);
 		dgs.sendIdleHostsToBed();
 
 		Assert.assertEquals("wake", dgs.getSleepingHosts().peek().getName());
 
 		dgs.wakeUpSleepingHost(2, 4);
 
-		Assert.assertEquals(1, dgs.getSleepingHosts().size());
+	    Assert.assertEquals(1, dgs.getSleepingHosts().size());
 	}
 
 }

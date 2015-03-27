@@ -136,7 +136,6 @@ public class DefaultGreenStrategy implements GreenStrategy {
 
 		LOGGER.info("Will send idle hosts to bed. Hosts' status: "
 				+ this.hostsAwake);
-		
 		for (Host host : this.hostsAwake) {
 			if (host.isNovaEnable() && host.isNovaRunning()
 					&& (host.getRunningVM() == 0)) {
