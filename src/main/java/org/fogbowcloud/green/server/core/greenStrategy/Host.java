@@ -3,12 +3,16 @@ package org.fogbowcloud.green.server.core.greenStrategy;
 public class Host implements Comparable<Host> {
 
 	private String name;
+	
+	// Cloud related attributes
 	private int runningVM;
 	private boolean novaRunning;
 	private boolean novaEnable;
 	private long cloudUpdatedTime;
 	private int availableCPU;
 	private int availableRAM;
+	
+	// Green agent related attributes
 	private String ip = null;
 	private String jid = null;
 	private String macAddress = null;
@@ -27,6 +31,10 @@ public class Host implements Comparable<Host> {
 		this.availableRAM = availableRAM;
 	}
 
+	public Host(String name) {
+		this.name = name;
+	}
+	
 	public int getAvailableCPU() {
 		return availableCPU;
 	}
@@ -49,6 +57,10 @@ public class Host implements Comparable<Host> {
 
 	public boolean isNovaEnable() {
 		return novaEnable;
+	}
+	
+	public void setNovaEnable(boolean novaEnable) {
+		this.novaEnable = novaEnable;
 	}
 
 	public boolean isNovaRunning() {

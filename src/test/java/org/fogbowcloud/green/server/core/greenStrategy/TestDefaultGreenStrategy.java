@@ -1,13 +1,10 @@
 package org.fogbowcloud.green.server.core.greenStrategy;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.fogbowcloud.green.server.communication.ServerCommunicationComponent;
-import org.fogbowcloud.green.server.core.greenStrategy.DefaultGreenStrategy;
-import org.fogbowcloud.green.server.core.greenStrategy.Host;
 import org.fogbowcloud.green.server.core.plugins.openstack.OpenStackInfoPlugin;
 import org.junit.Assert;
 import org.junit.Test;
@@ -21,8 +18,8 @@ public class TestDefaultGreenStrategy {
 		return osip;
 	}
 
-	private Date createDateMock(long Time) {
-		Date date = Mockito.mock(Date.class);
+	private DateWrapper createDateMock(long Time) {
+		DateWrapper date = Mockito.mock(DateWrapper.class);
 		Mockito.when(date.getTime()).thenReturn(Time);
 		return date;
 	}
@@ -32,17 +29,22 @@ public class TestDefaultGreenStrategy {
 		Host lost = new Host("lost", 0, true, true, 0, 0, 0);
 		lost.setLastSeen(0);
 		Host still = new Host("still", 0, true, true, 0, 0, 0);
-		still.setLastSeen(1500000);
 		List<Host> hosts = new LinkedList<Host>();
 		hosts.add(lost);
 		hosts.add(still);
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
 		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
-		Date date = this.createDateMock(1500001);
-		dgs.setDate(date);
-		dgs.setLostHostTime(1500000);
-		dgs.checkHostsLastSeen();
-		Assert.assertEquals(1, dgs.getAllWakedHosts().size());
+		DateWrapper date = this.createDateMock(0);
+		dgs.setDateWrapper(date);
+		dgs.receiveIamAliveInfo("lost", "lost@test.com", "123.456.789.10", "A1:B2:C3:D4:E5:67");
+		dgs.receiveIamAliveInfo("still", "still@test.com", "123.456.789.10", "A1:B2:C3:D4:E5:67");
+		dgs.setExpirationTime(1500000);
+		dgs.checkExpiredHosts();
+		DateWrapper newDate = this.createDateMock(1500001);
+		dgs.setDateWrapper(newDate);
+		dgs.receiveIamAliveInfo("still", "still@test.com", "123.456.789.10", "A1:B2:C3:D4:E5:67");
+		dgs.checkExpiredHosts();
+		Assert.assertEquals(1, dgs.getHostsAwake().size());
 	}
 
 	@Test
@@ -52,14 +54,12 @@ public class TestDefaultGreenStrategy {
 		hosts.add(toBeFound);
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
 		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
-		Date date = this.createDateMock(1500001);
-		dgs.setDate(date);
-		dgs.setLostHosts(hosts);
-		dgs.receiveIamAliveInfo("found", "test@test.com", "123.456.789",
-				" A1:B2:C3:D4:E5:67");
-		Assert.assertEquals(0, dgs.getLostHosts().size());
-		Assert.assertEquals(1, dgs.getAllWakedHosts().size());
-		Assert.assertEquals("test@test.com", dgs.getAllWakedHosts().get(0)
+		DateWrapper date = this.createDateMock(1500001);
+		dgs.setDateWrapper(date);
+		dgs.receiveIamAliveInfo("found", "test@test.com", "123.456.789.10",
+				"A1:B2:C3:D4:E5:67");
+		Assert.assertEquals(1, dgs.getHostsAwake().size());
+		Assert.assertEquals("test@test.com", dgs.getHostsAwake().get(0)
 				.getJid());
 	}
 
@@ -81,10 +81,12 @@ public class TestDefaultGreenStrategy {
 		updatedHosts.add(upHost1);
 		updatedHosts.add(upHost2);
 		dgs.setAllHosts(updatedHosts);
+		DateWrapper newDate = this.createDateMock(1500001);
+		dgs.setDateWrapper(newDate);
 		dgs.updateAllHosts();
-		Assert.assertEquals("test2@test.com", dgs.getAllWakedHosts().get(0)
+		Assert.assertEquals("test2@test.com", dgs.getHostsAwake().get(1)
 				.getJid());
-		Assert.assertEquals("test1@test.com", dgs.getAllWakedHosts().get(1)
+		Assert.assertEquals("test1@test.com", dgs.getHostsAwake().get(0)
 				.getJid());
 	}
 
@@ -95,8 +97,8 @@ public class TestDefaultGreenStrategy {
 		hosts.add(napping);
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
 		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
-		Date date = this.createDateMock(3600001);
-		dgs.setDate(date);
+		DateWrapper date = this.createDateMock(3600001);
+		dgs.setDateWrapper(date);
 		dgs.sendIdleHostsToBed();
 		Assert.assertEquals(1, dgs.getHostsInGracePeriod().size());
 	}
@@ -107,18 +109,17 @@ public class TestDefaultGreenStrategy {
 		h1.setMacAddress("mac");
 		List<Host> hosts = new LinkedList<Host>();
 		hosts.add(h1);
-		Date date = this.createDateMock(3600001);
+		DateWrapper date = this.createDateMock(3600001);
 		ServerCommunicationComponent gscc = Mockito
 				.mock(ServerCommunicationComponent.class);
 		try {
 			Mockito.doNothing().when(gscc).wakeUpHost(h1.getMacAddress());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//Ignorating exception because it always do nothing
 		}
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
 		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
-		dgs.setDate(date);
+		dgs.setDateWrapper(date);
 		dgs.setCommunicationComponent(gscc);
 		dgs.sendIdleHostsToBed();
 		h1.setNappingSince(1800000);
@@ -132,28 +133,27 @@ public class TestDefaultGreenStrategy {
 		Host lost = new Host("lost", 0, true, true, 0, 0, 0);
 		lost.setLastSeen(0);
 		Host still = new Host("still", 0, true, true, 0, 0, 0);
-		still.setLastSeen(1500000);
 		List<Host> hosts = new LinkedList<Host>();
 		hosts.add(lost);
 		hosts.add(still);
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
 		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
-		Date date = this.createDateMock(1500001);
-		dgs.setDate(date);
-		dgs.setLostHostTime(1500000);
-		dgs.checkHostsLastSeen();
+		DateWrapper date = this.createDateMock(1500001);
+		dgs.setDateWrapper(date);
+		dgs.receiveIamAliveInfo("host", "still@test.com", "123.456.789.10", "A1:B2:C3:D4:E5:67");
+		dgs.setExpirationTime(1500000);
+		dgs.checkExpiredHosts();
 		dgs.updateAllHosts();
-		Assert.assertEquals(1, dgs.getAllWakedHosts().size());
-		Assert.assertEquals(1, dgs.getLostHosts().size());
+		Assert.assertEquals(1, dgs.getHostsAwake().size());
 	}
 
 	@Test
 	public void testNoHosts() {
 		List<Host> hosts = new LinkedList<Host>();
-		Date date = this.createDateMock(3600001);
+		DateWrapper date = this.createDateMock(3600001);
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
 		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
-		dgs.setDate(date);
+		dgs.setDateWrapper(date);
 		dgs.sendIdleHostsToBed();
 		Assert.assertEquals(0, dgs.getSleepingHosts().size());
 		Assert.assertEquals(0, dgs.getSleepingHosts().size());
@@ -170,10 +170,10 @@ public class TestDefaultGreenStrategy {
 		hosts.add(stilSleep);
 		hosts.add(stilSleep2);
 
-		Date date = this.createDateMock(3600001);
+		DateWrapper date = this.createDateMock(3600001);
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
 		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
-		dgs.setDate(date);
+		dgs.setDateWrapper(date);
 		ServerCommunicationComponent gscc = Mockito
 				.mock(ServerCommunicationComponent.class);
 		try {
@@ -223,7 +223,7 @@ public class TestDefaultGreenStrategy {
 		hosts.add(mustWake);
 		hosts.add(mustWake2);
 
-		Date date = this.createDateMock(3600001);
+		DateWrapper date = this.createDateMock(3600001);
 		ServerCommunicationComponent gscc = Mockito
 				.mock(ServerCommunicationComponent.class);
 		try {
@@ -235,7 +235,7 @@ public class TestDefaultGreenStrategy {
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
 
 		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
-		dgs.setDate(date);
+		dgs.setDateWrapper(date);
 		dgs.setCommunicationComponent(gscc);
 		dgs.sendIdleHostsToBed();
 		mustWake.setNappingSince(1800000);

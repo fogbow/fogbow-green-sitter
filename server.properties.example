@@ -10,6 +10,5 @@ openstack.username = fogbow
 openstack.password = itIsASecret
 openstack.tenant = fogbow-project
 
-greenstrategy.sleeptime = 1800000
-greenstrategy.gracetime = 1800000
-greenstrategy.lostAgentTime = 1500000
+greenstrategy.gracetime = 1800
+greenstrategy.expirationtime = 300
