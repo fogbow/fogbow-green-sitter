@@ -95,7 +95,7 @@ public class OpenStackInfoPlugin implements CloudInfoPlugin {
 		ZoneService zones = os().compute().zones();
 		HashMap<String, NovaHost> novaRunning = new HashMap<String, NovaHost>();
 		List<? extends AvailabilityZone> availabilityZoneList = zones
-				.list();
+				.list(true);
 
 		for (AvailabilityZone availabilityZone : availabilityZoneList) {
 			ZoneState zoneState = availabilityZone.getZoneState();

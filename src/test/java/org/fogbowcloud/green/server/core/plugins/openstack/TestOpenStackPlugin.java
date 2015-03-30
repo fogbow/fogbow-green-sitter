@@ -38,7 +38,7 @@ public class TestOpenStackPlugin {
 				});
 		ZoneService zoneService = Mockito.mock(ZoneService.class);
 		Mockito.when(compute.zones()).thenReturn(zoneService);
-		Mockito.when(zoneService.list()).thenAnswer(new Answer<List<AvailabilityZone>>() {
+		Mockito.when(zoneService.list(true)).thenAnswer(new Answer<List<AvailabilityZone>>() {
 			@Override
 			public List<AvailabilityZone> answer(InvocationOnMock invocation)
 					throws Throwable {
@@ -53,7 +53,7 @@ public class TestOpenStackPlugin {
 		OSClient osClient = createOSClientMock(new LinkedList<Hypervisor>(),
 				new LinkedList<AvailabilityZone>());
 		OpenStackInfoPlugin plugin = Mockito.spy(new OpenStackInfoPlugin(null, null, null, null));
-		Mockito.when(plugin.os()).thenReturn(osClient);
+		Mockito.doReturn(osClient).when(plugin).os();
 		return plugin;
 	}
 

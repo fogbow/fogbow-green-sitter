@@ -113,7 +113,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 	public void receiveIamAliveInfo(String hostName, String jid, String ip,
 			String macAddress) {
 
-		LOGGER.info("Received IAmAlive from " + hostName);
+		LOGGER.info("Received IAmAlive from " + hostName + ", JID: " + jid + ", MAC: " + macAddress + ", IP: " +ip);
 		
 		Host hostToUpdate = null;
 		for (Host host : this.hostsAwake) {
@@ -151,7 +151,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 						 * napping than put it in sleeping host list
 						 */
 						if (nowTime - host.getNappingSince() > this.graceTime) {
-							scc.sendIdleHostToBed(host.getMacAddress());
+							scc.sendIdleHostToBed(host.getJid());
 							LOGGER.info("Host " + host.getName() + " was sent to bed");
 							this.sleepingHosts.add(host);
 						}

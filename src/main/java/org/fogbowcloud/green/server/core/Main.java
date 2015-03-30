@@ -4,8 +4,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
 import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Logger;
 import org.fogbowcloud.green.server.communication.ServerCommunicationComponent;
 import org.fogbowcloud.green.server.core.greenStrategy.DefaultGreenStrategy;
 
@@ -36,8 +36,9 @@ public class Main {
 					prop, gs);
 			gs.setCommunicationComponent(scc);
 			gs.start();
-			LOGGER.info("Green Server started");
+			scc.connect();
 			scc.process(true);
+			LOGGER.info("Green Server started");
 		} catch (Exception e) {
 			LOGGER.fatal("You must provide as parameter the"
 					+ " path for the configuration file", e);
