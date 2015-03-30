@@ -50,8 +50,7 @@ public class TestOpenStackPlugin {
 	
 	private OpenStackInfoPlugin createMockPlugin(final List<Hypervisor> hvs,
 			final List<AvailabilityZone> zones) {
-		OSClient osClient = createOSClientMock(new LinkedList<Hypervisor>(),
-				new LinkedList<AvailabilityZone>());
+		OSClient osClient = createOSClientMock(hvs, zones);
 		OpenStackInfoPlugin plugin = Mockito.spy(new OpenStackInfoPlugin(null, null, null, null));
 		Mockito.doReturn(osClient).when(plugin).os();
 		return plugin;
