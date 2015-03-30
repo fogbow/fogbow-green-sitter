@@ -11,17 +11,20 @@ import org.xmpp.packet.IQ.Type;
 public class ServerCommunicationComponent extends XMPPComponent {
 
 	private GreenStrategy gs;
+	private Properties prop;
 
 	public ServerCommunicationComponent(Properties prop, GreenStrategy gs) {
 		super(prop.getProperty("xmpp.jid"), prop.getProperty("xmpp.password"),
 				prop.getProperty("xmpp.host"), Integer.parseInt(prop
 						.getProperty("xmpp.port")));
+		this.prop = prop;
 		this.gs = gs;
 		addHandlers();
 	}
 
 	public void wakeUpHost(String macAddress) throws IOException {
-		ProcessBuilder pb = new ProcessBuilder("powerwake", macAddress);
+		ProcessBuilder pb = new ProcessBuilder("powerwake", "-b",
+				prop.getProperty("wol.broadcast.address"), macAddress);
 		pb.start();
 	}
 
