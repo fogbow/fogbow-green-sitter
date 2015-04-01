@@ -117,6 +117,8 @@ public class TestDefaultGreenStrategy {
 			Mockito.doNothing().when(gscc).wakeUpHost(h1.getMacAddress());
 		} catch (IOException e) {
 			//Ignorating exception because it always does nothing
+		} catch (InterruptedException e) {
+			//Ignorating exception because it always does nothing
 		}
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);
 		DefaultGreenStrategy dgs = new DefaultGreenStrategy(osip, 1800000);
@@ -188,6 +190,8 @@ public class TestDefaultGreenStrategy {
 			Mockito.doNothing().when(gscc).wakeUpHost(stillSleep2.getMacAddress());
 		} catch (IOException e) {
 			//Ignorating exception because it always does nothing
+		} catch (InterruptedException e) {
+			//Ignorating exception because it always does nothing
 		}
 		dgs.receiveIamAliveInfo("wake", "wake@test.com", "123.456.789.10", "A1:B2:C3:D4:E5:67");
 		dgs.receiveIamAliveInfo("still", "still1@test.com", "123.456.789.10", "A1:B2:C3:D4:E5:67");
@@ -234,6 +238,8 @@ public class TestDefaultGreenStrategy {
 		try {
 			Mockito.doNothing().when(gscc).wakeUpHost("wake");
 		} catch (IOException e) {
+			//Ignorating exception because it always does nothing
+		} catch (InterruptedException e) {
 			//Ignorating exception because it always does nothing
 		}
 		OpenStackInfoPlugin osip = this.createOpenStackInfoPluginMock(hosts);

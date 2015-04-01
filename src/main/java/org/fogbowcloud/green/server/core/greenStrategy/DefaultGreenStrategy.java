@@ -200,6 +200,9 @@ public class DefaultGreenStrategy implements GreenStrategy {
 		} catch (IOException e) {
 			LOGGER.warn("It was not possible to wake " + host +
 					"it may be lost or there is a network problem" + e);
+		} catch (InterruptedException e) {
+			LOGGER.warn("It was not possible to wake " + host +
+					"The proccess was interrupted" + e);
 		}
 	}
 	
