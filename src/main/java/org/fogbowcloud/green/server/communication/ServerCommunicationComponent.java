@@ -39,7 +39,7 @@ public class ServerCommunicationComponent extends XMPPComponent {
 		IAmAliveHandler alive = new IAmAliveHandler(gs);
 		WakeUpRequestHandler wakeup = new WakeUpRequestHandler(gs);
 		addGetHandler(alive);
-		addGetHandler(wakeup);
+		addSetHandler(wakeup);
 	}
 
 }
