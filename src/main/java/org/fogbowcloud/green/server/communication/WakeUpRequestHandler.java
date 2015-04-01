@@ -10,7 +10,7 @@ import org.xmpp.packet.IQ;
 
 public class WakeUpRequestHandler extends AbstractQueryHandler {
 
-	private static final String NAMESPACE = "org.fogbowcqueryloud.green.WakeUpRequest";
+	private static final String NAMESPACE = "org.fogbowcloud.green.WakeUpRequest";
 	private final ExecutorService executor = Executors.newFixedThreadPool(1);
 	private final GreenStrategy gs;
 
