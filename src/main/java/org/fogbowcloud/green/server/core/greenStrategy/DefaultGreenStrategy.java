@@ -182,6 +182,10 @@ public class DefaultGreenStrategy implements GreenStrategy {
 
 	public void wakeUpSleepingHost(int minCPU, int minRAM) {
 		Host host = this.sleepingHosts.peek();
+		if (host == null) { 
+			LOGGER.info("There is no host sleeping at the moment.");
+			return;
+		}
 		try {
 			if (host.getAvailableCPU() < minCPU) {
 				LOGGER.info("Tried to wake hosts but no hosts were found");

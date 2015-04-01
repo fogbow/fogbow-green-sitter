@@ -141,8 +141,8 @@ public class OpenStackInfoPlugin implements CloudInfoPlugin {
 				int availableRamInTheHost = availableRam.get(hostName);
 				int availableCPUInTheHost = availableCPU.get(hostName);
 				Host host = new Host(name, runningVMInTheHost, novaEnable,
-						novaRunning, updateTime, availableRamInTheHost,
-						availableCPUInTheHost);
+						novaRunning, updateTime, availableCPUInTheHost, 
+						availableRamInTheHost);
 				hosts.add(host);
 			} catch (Exception e) {
 				// Ignoring exceptions for hosts in unavailable zones
