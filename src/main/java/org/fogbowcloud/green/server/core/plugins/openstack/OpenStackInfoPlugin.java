@@ -37,13 +37,14 @@ public class OpenStackInfoPlugin implements CloudInfoPlugin {
 				.authenticate();
 	}
 	
-	private List<String> getHostsName() {
+	public List<String> getHostsName() {
 		List<? extends Hypervisor> hypervisors = os().compute().hypervisors()
 				.list();
 		List<String> hostsName = new LinkedList<String>();
 		for (Hypervisor hypervisor : hypervisors) {
 			hostsName.add(hypervisor.getHypervisorHostname());
 		}
+		System.out.println(hostsName.toString());
 		return hostsName;
 	}
 

@@ -43,6 +43,10 @@ public class AgentCommunicationComponent {
 			LOGGER.fatal("The configuration file is not correct", e);
 		}
 	}
+	
+	protected void setClient(XMPPClient client) {
+		this.client = client;
+	}
 
 	public Boolean init() {
 		XEP0077 register = new XEP0077();
@@ -103,7 +107,7 @@ public class AgentCommunicationComponent {
 		return true;
 	}
 
-	public void sendIamAliveSignal() {	
+	public IQ sendIamAliveSignal() {	
 		IQ iq = new IQ(Type.get);
 		iq.setTo(this.prop.getProperty("xmpp.component"));
 		iq.getElement().addElement("query", NAMESPACE);
@@ -117,6 +121,7 @@ public class AgentCommunicationComponent {
 				.setText(this.prop.getProperty("host.name"));
 		client.getConnection().sendPacket(iq);
 		LOGGER.info("IAmAlive signal sent to " + iq.getTo());
+		return iq;
 	}
 
 	public void start() {
