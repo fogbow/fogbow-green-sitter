@@ -33,21 +33,29 @@ public class DefaultGreenStrategy implements GreenStrategy {
 
 	private long graceTime;
 	private long expirationTime;
+	private int threadTime;
 
 	private ScheduledExecutorService executorService = Executors
 			.newScheduledThreadPool(1);
 
-	public DefaultGreenStrategy(Properties greenProperties) {
-		this.openStackPlugin = new OpenStackInfoPlugin(greenProperties
-				.getProperty("openstack.endpoint").toString(), greenProperties
-				.getProperty("openstack.username").toString(), greenProperties
-				.get("openstack.password").toString(), greenProperties
+	public DefaultGreenStrategy(Properties prop) {
+		this.openStackPlugin = new OpenStackInfoPlugin(prop
+				.getProperty("openstack.endpoint").toString(), prop
+				.getProperty("openstack.username").toString(), prop
+				.get("openstack.password").toString(), prop
 				.getProperty("openstack.tenant").toString());
 		this.dateWrapper = new DateWrapper();
-		this.graceTime = Long.parseLong(greenProperties
+		this.graceTime = Long.parseLong(prop
 				.getProperty("greenstrategy.gracetime")) * 1000;
-		this.expirationTime = Long.parseLong(greenProperties
+		this.expirationTime = Long.parseLong(prop
 				.getProperty("greenstrategy.expirationtime")) * 1000;
+		if (prop.getProperty("green.threadTime") != null) {
+			this.threadTime = Integer.parseInt(prop
+					.getProperty("green.threadTime"));
+		}
+		else{
+			this.threadTime = 60;
+		}
 	}
 
 	/*
@@ -217,6 +225,6 @@ public class DefaultGreenStrategy implements GreenStrategy {
 					LOGGER.warn("Exception thrown at the main thread", e);
 				}
 			}
-		}, 0, 1, TimeUnit.MINUTES);
+		}, 0, threadTime, TimeUnit.SECONDS);
 	}
 }

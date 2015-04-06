@@ -27,7 +27,7 @@ public class AgentCommunicationComponent {
 	private ScheduledExecutorService executor = Executors
 			.newScheduledThreadPool(1);
 	private Properties prop;
-	private long sleepingTime;
+	private int threadTime;
 	private XMPPClient client;
 
 	public AgentCommunicationComponent(Properties prop) {
@@ -37,8 +37,14 @@ public class AgentCommunicationComponent {
 					this.prop.getProperty("xmpp.password"),
 					this.prop.getProperty("xmpp.host"),
 					Integer.parseInt(this.prop.getProperty("xmpp.port")));
-			this.sleepingTime = Long.parseLong(this.prop
-					.getProperty("green.sleepingTime"));
+			if (this.prop.getProperty("green.threadTime") != null) {
+				this.threadTime = Integer.parseInt(this.prop
+						.getProperty("green.threadTime"));
+			}
+			else{
+				this.threadTime = 60;
+			}
+		
 		} catch (Exception e) {
 			LOGGER.fatal("The configuration file is not correct", e);
 		}
@@ -130,7 +136,7 @@ public class AgentCommunicationComponent {
 			public void run() {
 				sendIamAliveSignal();
 			}
-		}, 0, sleepingTime, TimeUnit.MILLISECONDS);
+		}, 0, threadTime, TimeUnit.SECONDS);
 	}
 
 }

@@ -26,7 +26,6 @@ public class TestWakeUpRequestHandler {
         query.addElement("minRAM").setText(Integer.toString(1024));
         WakeUpRequestHandler wurh = new WakeUpRequestHandler(this.createGreenStrategyMock(1, 1024));
         IQ result = wurh.handle(iq);
-		System.out.println(result);
         Assert.assertEquals(result.getFrom().toString(), "green.test.com");
 	}
 

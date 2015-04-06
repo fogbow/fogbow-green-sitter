@@ -44,7 +44,6 @@ public class OpenStackInfoPlugin implements CloudInfoPlugin {
 		for (Hypervisor hypervisor : hypervisors) {
 			hostsName.add(hypervisor.getHypervisorHostname());
 		}
-		System.out.println(hostsName.toString());
 		return hostsName;
 	}
 
