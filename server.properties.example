@@ -1,5 +1,3 @@
-green.cloudtechnology = openstack 
-
 xmpp.jid = green-sitter.example.com
 xmpp.password = tellNoOne
 xmpp.host = localhost
