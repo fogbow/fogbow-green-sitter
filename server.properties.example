@@ -4,9 +4,9 @@ xmpp.host = localhost
 xmpp.port = 1023
 
 openstack.endpoint = http://novacompute.endpoint.com/v2.0
-openstack.username = fogbow
+openstack.username = admin
 openstack.password = itIsASecret
-openstack.tenant = fogbow-project
+openstack.tenant = admin
 
 greenstrategy.gracetime = 1800
 greenstrategy.expirationtime = 300
