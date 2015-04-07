@@ -200,7 +200,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 				return;
 			}
 			if (host.getAvailableRAM() >= minRAM) {
-				this.scc.wakeUpHost(host.getName());
+				this.scc.wakeUpHost(host.getMacAddress());
 				this.sleepingHosts.remove(host);
 				LOGGER.info("Waked " + host);
 			}
