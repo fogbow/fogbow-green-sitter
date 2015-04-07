@@ -58,6 +58,37 @@ public class AgentCommunicationComponent {
 	protected void setRegister(XEP0077 register) {
 		this.register = register;
 	}
+	
+	protected static PacketFilter createPacketFilter(final String componentAddress) {
+		return new PacketFilter() {
+			@Override
+			public boolean accept(Packet packet) {
+				JID from = packet.getFrom();
+				if (from == null) {
+					return false;
+				}
+				if (!from.toString().equals(componentAddress)) {
+					return false;
+				}
+				if (packet.getError() != null) {
+					LOGGER.fatal("IAmAlive packet returned an error: " + packet.toXML());
+					return false;
+				}
+				if ((packet.getElement() == null) || (packet.getElement().element("query") == null)) {
+					LOGGER.fatal("There is no query element in the response packet");
+					return false;
+				}
+				Element queryEl = packet.getElement().element("query");
+				String ns = queryEl.getNamespaceURI();
+				if (!ns.equals("org.fogbowcloud.green.GoToBed")) {
+					LOGGER.fatal("Query element has a different namespace: " + ns);
+					return false;
+				}
+
+				return true;
+			}
+		};
+	}
 
 	public Boolean init() {
 		try {
@@ -82,40 +113,19 @@ public class AgentCommunicationComponent {
 		}
 		this.client.process(false);
 		LOGGER.info("connected to the server");
-		client.getConnection().addPacketListener(new PacketListener() {
+		client.getConnection().addPacketListener(
+				createPacketListener(new TurnOff(prop)), 
+				createPacketFilter(prop.getProperty("xmpp.component")));
+		return true;
+	}
+
+	protected static PacketListener createPacketListener(final TurnOff turnOff) {
+		return new PacketListener() {
 			@Override
 			public void processPacket(Packet packet) {
-				new TurnOff().suspend(prop.getProperty("green.TurnOffCommand"));
+				turnOff.suspend();
 			}
-		}, new PacketFilter() {
-			@Override
-			public boolean accept(Packet packet) {
-				JID from = packet.getFrom();
-				if (from == null) {
-					return false;
-				}
-				if (!from.toString().equals(prop.getProperty("xmpp.component"))) {
-					return false;
-				}
-				if (packet.getError() != null) {
-					LOGGER.fatal("IAmAlive packet returned an error: " + packet.toXML());
-					return false;
-				}
-				Element queryEl = packet.getElement().element("query");
-				if (queryEl == null) {
-					LOGGER.fatal("There is no query element in the response packet");
-					return false;
-				}
-				String ns = queryEl.getNamespaceURI();
-				if (!ns.equals("org.fogbowcloud.green.GoToBed")) {
-					LOGGER.fatal("Query element has a different namespace: " + ns);
-					return false;
-				}
-
-				return true;
-			}
-		});
-		return true;
+		};
 	}
 
 	public IQ sendIamAliveSignal() {	

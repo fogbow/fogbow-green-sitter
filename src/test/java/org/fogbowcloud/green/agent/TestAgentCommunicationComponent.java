@@ -2,14 +2,17 @@ package org.fogbowcloud.green.agent;
 
 import java.util.Properties;
 
-import org.junit.Assert;
 import org.jamppa.client.XMPPClient;
 import org.jamppa.client.plugin.xep0077.XEP0077;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.filter.PacketFilter;
+import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.xmpp.packet.IQ;
+import org.xmpp.packet.JID;
+import org.xmpp.packet.Packet;
 
 public class TestAgentCommunicationComponent {
 
@@ -63,6 +66,34 @@ public class TestAgentCommunicationComponent {
 	
 	@Test
 	public void testPacketFromUnexpectedSource() {
-		
+		Packet packet = Mockito.mock(Packet.class);
+		JID jid = Mockito.mock(JID.class);
+		Mockito.doReturn(jid).when(packet).getFrom();
+		Mockito.doReturn("otherComponent.com").when(jid).toString();
+		PacketFilter pf = AgentCommunicationComponent
+				.createPacketFilter("green.server.com");
+		Assert.assertEquals(false, pf.accept(packet));
 	}
+	
+	@Test
+	public void testPacketWithoutFrom() {
+		Packet packet = Mockito.mock(Packet.class);
+		JID jid = null;
+		Mockito.doReturn(jid).when(packet).getFrom();
+		PacketFilter pf = AgentCommunicationComponent
+				.createPacketFilter("green.server.com");
+		Assert.assertEquals(false, pf.accept(packet));
+	}
+	
+	@Test
+	public void testPacketWithNullQuerryElement() {
+		Packet packet = Mockito.mock(Packet.class);
+		JID jid = Mockito.mock(JID.class);
+		Mockito.doReturn(jid).when(packet).getFrom();
+		Mockito.doReturn("green.server.com").when(jid).toString();
+		PacketFilter pf = AgentCommunicationComponent
+				.createPacketFilter("green.server.com");
+		Assert.assertEquals(false, pf.accept(packet));
+	}
+	
 }
