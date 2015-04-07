@@ -29,6 +29,7 @@ public class AgentCommunicationComponent {
 	private Properties prop;
 	private int threadTime;
 	private XMPPClient client;
+	XEP0077 register = new XEP0077();
 
 	public AgentCommunicationComponent(Properties prop) {
 		try {
@@ -53,21 +54,25 @@ public class AgentCommunicationComponent {
 	protected void setClient(XMPPClient client) {
 		this.client = client;
 	}
+	
+	protected void setRegister(XEP0077 register) {
+		this.register = register;
+	}
 
 	public Boolean init() {
-		XEP0077 register = new XEP0077();
 		try {
 			this.client.registerPlugin(register);
 			this.client.connect();
 		} catch (Exception e) {
 			LOGGER.fatal("It was not possible to connect to server", e);
+			e.printStackTrace();
 			return false;
 		}
 		try {
 			register.createAccount(this.prop.getProperty("xmpp.jid"),
 					this.prop.getProperty("xmpp.password"));
 		} catch (XMPPException e) {
-			LOGGER.fatal("It was not possible to create the account", e);
+			LOGGER.warn("It was not possible to create the account", e);
 		}
 		try {
 			this.client.login();
@@ -93,17 +98,17 @@ public class AgentCommunicationComponent {
 					return false;
 				}
 				if (packet.getError() != null) {
-					LOGGER.warn("IAmAlive packet returned an error: " + packet.toXML());
+					LOGGER.fatal("IAmAlive packet returned an error: " + packet.toXML());
 					return false;
 				}
 				Element queryEl = packet.getElement().element("query");
 				if (queryEl == null) {
-					LOGGER.info("There is no query element in the response packet");
+					LOGGER.fatal("There is no query element in the response packet");
 					return false;
 				}
 				String ns = queryEl.getNamespaceURI();
 				if (!ns.equals("org.fogbowcloud.green.GoToBed")) {
-					LOGGER.info("Query element has a different namespace: " + ns);
+					LOGGER.fatal("Query element has a different namespace: " + ns);
 					return false;
 				}
 

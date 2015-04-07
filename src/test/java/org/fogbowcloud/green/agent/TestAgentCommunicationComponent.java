@@ -39,11 +39,30 @@ public class TestAgentCommunicationComponent {
 		XMPPClient client = Mockito.mock(XMPPClient.class);
 		XMPPException e = new XMPPException();
 		Mockito.doThrow(e).when(client).connect();
-		Mockito.doThrow(e).when(client).registerPlugin(new XEP0077());
 		Properties prop = Mockito.mock(Properties.class);
 		AgentCommunicationComponent acc = new AgentCommunicationComponent(prop);
 		acc.setClient(client);
 		Assert.assertEquals(false, acc.init());
 	}
 	
+	@Test
+	public void testAccountAlreadyCreated () throws XMPPException {
+		XMPPException e = new XMPPException();
+		XEP0077 register = Mockito.mock(XEP0077.class);
+		Properties prop = Mockito.mock(Properties.class);
+		XMPPClient client = Mockito.mock(XMPPClient.class);
+		Mockito.doReturn(Mockito.mock(XMPPConnection.class)).when(client).getConnection();
+		Mockito.doReturn("jid@testagent.com").when(prop).getProperty("xmpp.jid");
+		Mockito.doReturn("tellnoone").when(prop).getProperty("xmpp.password");
+		Mockito.doThrow(e).when(register).createAccount("jid@testagent.com", "tellnoone");
+		AgentCommunicationComponent acc = new AgentCommunicationComponent(prop);
+		acc.setRegister(register);
+		acc.setClient(client);
+		Assert.assertEquals(true, acc.init());
+	}
+	
+	@Test
+	public void testPacketFromUnexpectedSource() {
+		
+	}
 }
