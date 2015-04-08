@@ -80,12 +80,24 @@ public class AgentCommunicationComponent {
 				}
 				Element queryEl = packet.getElement().element("query");
 				String ns = queryEl.getNamespaceURI();
+				if (ns == null) {
+					LOGGER.fatal("The namespace of the query was null: " + ns);
+					return false;
+				}
 				if (!ns.equals("org.fogbowcloud.green.GoToBed")) {
 					LOGGER.fatal("Query element has a different namespace: " + ns);
 					return false;
 				}
-
 				return true;
+			}
+		};
+	}
+	
+	protected static PacketListener createPacketListener(final TurnOff turnOff) {
+		return new PacketListener() {
+			@Override
+			public void processPacket(Packet packet) {
+				turnOff.suspend();
 			}
 		};
 	}
@@ -117,15 +129,6 @@ public class AgentCommunicationComponent {
 				createPacketListener(new TurnOff(prop)), 
 				createPacketFilter(prop.getProperty("xmpp.component")));
 		return true;
-	}
-
-	protected static PacketListener createPacketListener(final TurnOff turnOff) {
-		return new PacketListener() {
-			@Override
-			public void processPacket(Packet packet) {
-				turnOff.suspend();
-			}
-		};
 	}
 
 	public IQ sendIamAliveSignal() {	

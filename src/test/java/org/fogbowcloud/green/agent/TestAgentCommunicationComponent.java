@@ -2,8 +2,10 @@ package org.fogbowcloud.green.agent;
 
 import java.util.Properties;
 
+import org.dom4j.Element;
 import org.jamppa.client.XMPPClient;
 import org.jamppa.client.plugin.xep0077.XEP0077;
+import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.filter.PacketFilter;
@@ -71,7 +73,7 @@ public class TestAgentCommunicationComponent {
 		Mockito.doReturn(jid).when(packet).getFrom();
 		Mockito.doReturn("otherComponent.com").when(jid).toString();
 		PacketFilter pf = AgentCommunicationComponent
-				.createPacketFilter("green.server.com");
+				.createPacketFilter("green.server.com"); 
 		Assert.assertEquals(false, pf.accept(packet));
 	}
 	
@@ -96,4 +98,73 @@ public class TestAgentCommunicationComponent {
 		Assert.assertEquals(false, pf.accept(packet));
 	}
 	
+	@Test
+	public void testNoQuery() {
+		Packet packet = Mockito.mock(Packet.class);
+		JID jid = Mockito.mock(JID.class);
+		Mockito.doReturn(jid).when(packet).getFrom();
+		Mockito.doReturn(Mockito.mock(Element.class)).when(packet).getElement();
+		Mockito.doReturn("green.server.com").when(jid).toString();
+		PacketFilter pf = AgentCommunicationComponent
+				.createPacketFilter("green.server.com");
+		Assert.assertEquals(false, pf.accept(packet));
+	}
+	
+	@Test
+	public void testNsIsNull() {
+		Packet packet = Mockito.mock(Packet.class);
+		JID jid = Mockito.mock(JID.class);
+		Mockito.doReturn(jid).when(packet).getFrom();
+		Element e = Mockito.mock(Element.class);
+		Mockito.doReturn(e).when(packet).getElement();
+		Element elementQuery = Mockito.mock(Element.class);
+		Mockito.doReturn(elementQuery).when(e).element("query");
+		Mockito.doReturn("green.server.com").when(jid).toString();
+		PacketFilter pf = AgentCommunicationComponent
+				.createPacketFilter("green.server.com");
+		Assert.assertEquals(false, pf.accept(packet));
+	}
+	
+	@Test
+	public void testNsIsNotCorrect() {
+		Packet packet = Mockito.mock(Packet.class);
+		JID jid = Mockito.mock(JID.class);
+		Mockito.doReturn(jid).when(packet).getFrom();
+		Element e = Mockito.mock(Element.class);
+		Mockito.doReturn(e).when(packet).getElement();
+		Element elementQuery = Mockito.mock(Element.class);
+		Mockito.doReturn(elementQuery).when(e).element("query");
+		Mockito.doReturn("othernamespace").when(elementQuery).getNamespaceURI();
+		Mockito.doReturn("green.server.com").when(jid).toString();
+		PacketFilter pf = AgentCommunicationComponent
+				.createPacketFilter("green.server.com");
+		Assert.assertEquals(false, pf.accept(packet));
+	}
+	
+	@Test
+	public void testPacketIsCorrect() {
+		Packet packet = Mockito.mock(Packet.class);
+		JID jid = Mockito.mock(JID.class);
+		Mockito.doReturn(jid).when(packet).getFrom();
+		Element e = Mockito.mock(Element.class);
+		Mockito.doReturn(e).when(packet).getElement();
+		Element elementQuery = Mockito.mock(Element.class);
+		Mockito.doReturn(elementQuery).when(e).element("query");
+		Mockito.doReturn("org.fogbowcloud.green.GoToBed").when(elementQuery).getNamespaceURI();
+		Mockito.doReturn("green.server.com").when(jid).toString();
+		PacketFilter pf = AgentCommunicationComponent
+				.createPacketFilter("green.server.com");
+		Assert.assertEquals(true, pf.accept(packet));
+	}
+	
+	@Test
+	public void testCallTurnOff() {
+		TurnOff turnOff = Mockito.mock(TurnOff.class);
+		PacketListener pl = AgentCommunicationComponent.
+				createPacketListener(turnOff);
+		pl.processPacket(Mockito.mock(Packet.class));
+		Mockito.verify(turnOff).suspend();
+	}
+
+
 }
