@@ -23,12 +23,12 @@ public class TestAgentCommunicationComponent {
 		XMPPClient client = Mockito.mock(XMPPClient.class);
 		Mockito.doReturn(Mockito.mock(XMPPConnection.class)).when(client)
 				.getConnection();
-		Properties prop = Mockito.mock(Properties.class);
-		Mockito.doReturn("123.456.78.9").when(prop).getProperty("host.ip");
-		Mockito.doReturn("host").when(prop).getProperty("host.name");
-		Mockito.doReturn("A1:B2:C3:D4:E5:67").when(prop)
-				.getProperty("host.macAddress");
-		AgentCommunicationComponent acc = new AgentCommunicationComponent(prop);
+		Properties prop = new Properties();
+		prop.put("host.ip", "123.456.78.9");
+		prop.put("host.name", "host");
+		prop.put("host.macAddress", "A1:B2:C3:D4:E5:67");
+		AgentCommunicationComponent acc =
+				new AgentCommunicationComponent(prop);
 		acc.setClient(client);
 		IQ expectedIQ = acc.sendIamAliveSignal();
 		Assert.assertEquals(expectedIQ.getElement().element("query")
@@ -44,7 +44,7 @@ public class TestAgentCommunicationComponent {
 		XMPPClient client = Mockito.mock(XMPPClient.class);
 		XMPPException e = new XMPPException();
 		Mockito.doThrow(e).when(client).connect();
-		Properties prop = Mockito.mock(Properties.class);
+		Properties prop = new Properties();
 		AgentCommunicationComponent acc = new AgentCommunicationComponent(prop);
 		acc.setClient(client);
 		Assert.assertEquals(false, acc.init());
@@ -54,11 +54,11 @@ public class TestAgentCommunicationComponent {
 	public void testAccountAlreadyCreated () throws XMPPException {
 		XMPPException e = new XMPPException();
 		XEP0077 register = Mockito.mock(XEP0077.class);
-		Properties prop = Mockito.mock(Properties.class);
+		Properties prop = new Properties();
+		prop.put("xmpp.jid", "jid@testagent.com");
+		prop.put("xmpp.password", "tellnoone");
 		XMPPClient client = Mockito.mock(XMPPClient.class);
 		Mockito.doReturn(Mockito.mock(XMPPConnection.class)).when(client).getConnection();
-		Mockito.doReturn("jid@testagent.com").when(prop).getProperty("xmpp.jid");
-		Mockito.doReturn("tellnoone").when(prop).getProperty("xmpp.password");
 		Mockito.doThrow(e).when(register).createAccount("jid@testagent.com", "tellnoone");
 		AgentCommunicationComponent acc = new AgentCommunicationComponent(prop);
 		acc.setRegister(register);

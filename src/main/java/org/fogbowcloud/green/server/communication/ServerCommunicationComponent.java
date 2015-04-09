@@ -51,7 +51,6 @@ public class ServerCommunicationComponent extends XMPPComponent {
 		IQ iq = new IQ(Type.set);
 		iq.setTo(hostJID);
 		iq.getElement().addElement("query", "org.fogbowcloud.green.GoToBed");
-		System.out.println(iq);
 		packetSender.sendPacket(iq);
 	}
 

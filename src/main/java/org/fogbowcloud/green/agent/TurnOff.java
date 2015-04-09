@@ -38,7 +38,6 @@ public class TurnOff {
 		try {
 			Process process = pb.start();
 			process.waitFor();
-			System.out.println(process.getInputStream().read());
 		} catch (Exception e) {
 			LOGGER.warn("It was not possible to turn down this host", e);
 		}

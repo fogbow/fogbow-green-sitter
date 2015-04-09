@@ -140,7 +140,7 @@ public class AgentCommunicationComponent {
 				.elements("query").get(0);
 		query.addElement("ip").setText(this.prop.getProperty("host.ip"));
 		query.addElement("macAddress").setText(
-				this.prop.getProperty("host.macAddress"));
+		this.prop.getProperty("host.macAddress"));
 		query.addElement("hostName")
 				.setText(this.prop.getProperty("host.name"));
 		client.getConnection().sendPacket(iq);

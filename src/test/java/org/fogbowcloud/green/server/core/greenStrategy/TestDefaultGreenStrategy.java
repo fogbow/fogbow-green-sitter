@@ -25,7 +25,7 @@ public class TestDefaultGreenStrategy {
 	}
 
 	@Test
-	public void testCheckHostLastSeen() {
+	public void testCheckExpiredHots() {
 		Host lost = new Host("lost", 0, true, true, 0, 0, 0);
 		lost.setLastSeen(0);
 		Host stilll = new Host("stilll", 0, true, true, 0, 0, 0);
@@ -48,7 +48,7 @@ public class TestDefaultGreenStrategy {
 	}
 
 	@Test
-	public void testRetrievingHosts() {
+	public void testRetrievingHostsFromTheCloud() {
 		Host toBeFound = new Host("found", 0, true, true, 0, 0, 0);
 		List<Host> hosts = new LinkedList<Host>();
 		hosts.add(toBeFound);
