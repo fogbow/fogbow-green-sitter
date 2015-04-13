@@ -34,8 +34,19 @@ public class DefaultGreenStrategy implements GreenStrategy {
 	private long graceTime;
 	private long expirationTime;
 	private int threadTime;
+	private Runnable runnable = new Runnable() {
+		@Override
+		public void run() {
+			try {
+				checkExpiredHosts();
+				sendIdleHostsToBed();
+			} catch (Exception e) {
+				LOGGER.warn("Exception thrown at the main thread", e);
+			}
+		}
+	};
 
-	private ScheduledExecutorService executorService = Executors
+	protected ScheduledExecutorService executorService = Executors
 			.newScheduledThreadPool(1);
 
 	public DefaultGreenStrategy(Properties prop) {
@@ -70,6 +81,14 @@ public class DefaultGreenStrategy implements GreenStrategy {
 	protected void setExpirationTime(long lostHostTime) {
 		this.expirationTime = lostHostTime;
 	}
+	
+	protected void setExecutorService(ScheduledExecutorService executorService) {
+		this.executorService = executorService;
+	}
+	
+	protected void setRunnable(Runnable runnable) {
+		this.runnable = runnable;
+	}
 
 	protected void setAllHosts(List<Host> hosts) {
 		this.hostsAwake = hosts;
@@ -77,6 +96,9 @@ public class DefaultGreenStrategy implements GreenStrategy {
 
 	protected void setDateWrapper(DateWrapper dateWrapper) {
 		this.dateWrapper = dateWrapper;
+	}
+	protected int getThreadTime() {
+		return threadTime;
 	}
 
 	public void setCommunicationComponent(ServerCommunicationComponent gscc) {
@@ -215,16 +237,8 @@ public class DefaultGreenStrategy implements GreenStrategy {
 	}
 	
 	public void start() {
-		executorService.scheduleWithFixedDelay(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					checkExpiredHosts();
-					sendIdleHostsToBed();
-				} catch (Exception e) {
-					LOGGER.warn("Exception thrown at the main thread", e);
-				}
-			}
-		}, 0, threadTime, TimeUnit.SECONDS);
+		executorService.scheduleWithFixedDelay(this.runnable, 0, threadTime, TimeUnit.SECONDS);
 	}
+
+
 }

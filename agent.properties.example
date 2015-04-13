@@ -11,3 +11,5 @@ host.name = agent
 
 green.TurnOffCommand = pm-suspend
 green.sleepingTime = 300000
+
+green.threadTime = 60

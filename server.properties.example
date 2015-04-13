@@ -12,3 +12,5 @@ greenstrategy.gracetime = 1800
 greenstrategy.expirationtime = 300
 
 wol.broadcast.address = 123.123.255.255
+
+green.threadTime = 60

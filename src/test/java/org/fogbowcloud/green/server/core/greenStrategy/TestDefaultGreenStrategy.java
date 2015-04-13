@@ -3,6 +3,9 @@ package org.fogbowcloud.green.server.core.greenStrategy;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.fogbowcloud.green.server.communication.ServerCommunicationComponent;
 import org.fogbowcloud.green.server.core.plugins.openstack.OpenStackInfoPlugin;
@@ -23,6 +26,49 @@ public class TestDefaultGreenStrategy {
 		Mockito.when(date.getTime()).thenReturn(Time);
 		return date;
 	}
+	
+	private Properties createBasicProperties() {
+		Properties prop = new Properties();
+		prop.put("openstack.endpoint", "endpoint");
+		prop.put("openstack.username", "username");
+		prop.put("openstack.password", "password");
+		prop.put("openstack.tenant", "tenant");
+		prop.put("greenstrategy.gracetime", "1");
+		prop.put("greenstrategy.expirationtime", "1");
+		return prop;
+	}
+	
+	@Test
+	public void testPropertiesWithoutThreadTime() {
+		Properties prop = createBasicProperties();
+		DefaultGreenStrategy dgs = new DefaultGreenStrategy(prop);
+		Assert.assertEquals(60, dgs.getThreadTime());
+	}
+	
+	@Test
+	public void testPropertiesWithThreadTime() {
+		Properties prop = createBasicProperties();
+		prop.put("green.threadTime", "10");
+		DefaultGreenStrategy dgs = new DefaultGreenStrategy(prop);
+		Assert.assertEquals(10, dgs.getThreadTime());
+	}
+	
+	@Test
+	public void testStartMethod() {
+		Properties prop = createBasicProperties();
+		final DefaultGreenStrategy dgs = new DefaultGreenStrategy(prop);
+	    Runnable runnable = new Runnable() {
+			@Override
+			public void run() {
+			}
+		};
+		dgs.setRunnable(runnable);
+		ScheduledExecutorService executorService = Mockito.mock(ScheduledExecutorService.class);
+		dgs.setExecutorService(executorService);
+		dgs.start();
+		Mockito.verify(executorService).scheduleWithFixedDelay(runnable, 0, 60, TimeUnit.SECONDS);
+	}
+	
 
 	@Test
 	public void testCheckExpiredHots() {
