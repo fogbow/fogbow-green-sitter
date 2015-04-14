@@ -38,12 +38,12 @@ public class AgentCommunicationComponent {
 					this.prop.getProperty("xmpp.password"),
 					this.prop.getProperty("xmpp.host"),
 					Integer.parseInt(this.prop.getProperty("xmpp.port")));
-			if (this.prop.getProperty("green.threadTime") != null) {
-				this.threadTime = Integer.parseInt(this.prop
-						.getProperty("green.threadTime"));
+			if (this.prop.getProperty("green.threadTime") == null) {
+				this.threadTime = 60;
 			}
 			else{
-				this.threadTime = 60;
+				this.threadTime = Integer.parseInt(this.prop
+						.getProperty("green.threadTime"));
 			}
 		
 		} catch (Exception e) {
@@ -57,6 +57,10 @@ public class AgentCommunicationComponent {
 	
 	protected void setRegister(XEP0077 register) {
 		this.register = register;
+	}
+	
+	protected int getThreadTime() {
+		return threadTime;
 	}
 	
 	protected static PacketFilter createPacketFilter(final String componentAddress) {
