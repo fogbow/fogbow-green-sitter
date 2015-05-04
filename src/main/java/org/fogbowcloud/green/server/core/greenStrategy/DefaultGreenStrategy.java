@@ -19,7 +19,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 	private static final Logger LOGGER = Logger
 			.getLogger(DefaultGreenStrategy.class);
 
-	private CloudInfoPlugin openStackPlugin;
+	private CloudInfoPlugin cloudInfoPlugin;
 	private List<Host> hostsAwake = new LinkedList<Host>();
 	/*
 	 * The List hosts in grace period is used to keep those hosts which are not
@@ -50,7 +50,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 			.newScheduledThreadPool(1);
 
 	public DefaultGreenStrategy(Properties prop) {
-		this.openStackPlugin = new OpenStackInfoPlugin(prop
+		this.cloudInfoPlugin = new OpenStackInfoPlugin(prop
 				.getProperty("openstack.endpoint").toString(), prop
 				.getProperty("openstack.username").toString(), prop
 				.get("openstack.password").toString(), prop
@@ -74,7 +74,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 	 */
 	protected DefaultGreenStrategy(CloudInfoPlugin openStackPlugin,
 			long graceTime) {
-		this.openStackPlugin = openStackPlugin;
+		this.cloudInfoPlugin = openStackPlugin;
 		this.graceTime = graceTime;
 	}
 
@@ -121,7 +121,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 		
 		LOGGER.info("Updating host info at the local cloud...");
 		
-		List<? extends Host> cloudInfo = this.openStackPlugin.getHostInformation();
+		List<? extends Host> cloudInfo = this.cloudInfoPlugin.getHostInformation();
 
 		/*
 		 * Solution for not loosing data when it is updated
@@ -132,8 +132,8 @@ public class DefaultGreenStrategy implements GreenStrategy {
 					host.setAvailableCPU(hostCloudInfo.getAvailableCPU());
 					host.setAvailableRAM(hostCloudInfo.getAvailableRAM());
 					host.setRunningVM(hostCloudInfo.getRunningVM());
-					host.setNovaRunning(hostCloudInfo.isNovaRunning());
-					host.setNovaEnable(hostCloudInfo.isNovaEnable());
+					host.setNovaRunning(hostCloudInfo.isComputeComponentRunning());
+					host.setEnabled(hostCloudInfo.isEnabled());
 					host.setCloudUpdatedTime(dateWrapper.getTime());
 				}
 			}
@@ -167,7 +167,7 @@ public class DefaultGreenStrategy implements GreenStrategy {
 		LOGGER.info("Will send idle hosts to bed. Hosts' status: "
 				+ this.hostsAwake);
 		for (Host host : this.hostsAwake) {
-			if (host.isNovaEnable() && host.isNovaRunning()
+			if (host.isEnabled() && host.isComputeComponentRunning()
 					&& (host.getRunningVM() == 0)) {
 				if (!this.getHostsInGracePeriod().contains(host)) {
 					host.setNappingSince(this.dateWrapper.getTime());
@@ -239,6 +239,5 @@ public class DefaultGreenStrategy implements GreenStrategy {
 	public void start() {
 		executorService.scheduleWithFixedDelay(this.runnable, 0, threadTime, TimeUnit.SECONDS);
 	}
-
 
 }

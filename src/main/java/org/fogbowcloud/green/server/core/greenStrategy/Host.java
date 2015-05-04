@@ -6,8 +6,8 @@ public class Host implements Comparable<Host> {
 	
 	// Cloud related attributes
 	private int runningVM;
-	private boolean novaRunning;
-	private boolean novaEnable;
+	private boolean computeComponentRunning;
+	private boolean enabled;
 	private long cloudUpdatedTime;
 	private int availableCPU;
 	private int availableRAM;
@@ -19,13 +19,13 @@ public class Host implements Comparable<Host> {
 	private long lastSeen = 0;
 	private long nappingSince = 0;
 
-	public Host(String name, int runningVM, boolean novaRunning,
-			boolean novaEnable, long updateTime, int availableCPU,
+	public Host(String name, int runningVM, boolean computeComponentRunning,
+			boolean enabled, long updateTime, int availableCPU,
 			int availableRAM) {
 		this.name = name;
 		this.runningVM = runningVM;
-		this.novaRunning = novaRunning;
-		this.novaEnable = novaEnable;
+		this.computeComponentRunning = computeComponentRunning;
+		this.enabled = enabled;
 		this.cloudUpdatedTime = updateTime;
 		this.availableCPU = availableCPU;
 		this.availableRAM = availableRAM;
@@ -55,16 +55,16 @@ public class Host implements Comparable<Host> {
 		return cloudUpdatedTime;
 	}
 
-	public boolean isNovaEnable() {
-		return novaEnable;
+	public boolean isEnabled() {
+		return enabled;
 	}
 	
-	public void setNovaEnable(boolean novaEnable) {
-		this.novaEnable = novaEnable;
+	public void setEnabled(boolean novaEnable) {
+		this.enabled = novaEnable;
 	}
 
-	public boolean isNovaRunning() {
-		return novaRunning;
+	public boolean isComputeComponentRunning() {
+		return computeComponentRunning;
 	}
 
 	public void setAvailableCPU(int availableCPU) {
@@ -76,7 +76,7 @@ public class Host implements Comparable<Host> {
 	}
 
 	public void setNovaRunning(boolean novaRunning) {
-		this.novaRunning = novaRunning;
+		this.computeComponentRunning = novaRunning;
 	}
 
 	public void setCloudUpdatedTime(long updateTime) {
@@ -154,7 +154,7 @@ public class Host implements Comparable<Host> {
 	@Override
 	public String toString() {
 		return "Host [name=" + name + ", runningVM=" + runningVM
-				+ ", novaRunning=" + novaRunning + ", novaEnable=" + novaEnable
+				+ ", novaRunning=" + computeComponentRunning + ", novaEnable=" + enabled
 				+ ", cloudUpdatedTime=" + cloudUpdatedTime + ", availableCPU="
 				+ availableCPU + ", availableRAM=" + availableRAM + ", ip="
 				+ ip + ", jid=" + jid + ", macAddress=" + macAddress
