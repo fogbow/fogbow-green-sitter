@@ -3,29 +3,21 @@ package org.fogbowcloud.green.server.core.plugins.opennebula;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.fogbowcloud.green.server.core.greenStrategy.DateWrapper;
 import org.fogbowcloud.green.server.core.greenStrategy.Host;
 import org.fogbowcloud.green.server.core.plugins.CloudInfoPlugin;
-import org.opennebula.client.Client;
-import org.opennebula.client.ClientConfigurationException;
 import org.opennebula.client.host.HostPool;
 
 public class OpenNebulaInfoPlugin implements CloudInfoPlugin {
-
-	private String userPasswordTuple;
-	private String endPoint;
-
-	private static final Logger LOGGER = Logger
-			.getLogger(OpenNebulaInfoPlugin.class);
-
+	
+	private ClientFactory clientFactory;
+	
 	public OpenNebulaInfoPlugin(String user, String password, String endPoint) {
-		this.endPoint = endPoint;
-		this.userPasswordTuple = user + ":" + password;
+		clientFactory = new ClientFactory(user, password, endPoint);
 	}
 	
-	protected Client createOneClient() throws ClientConfigurationException {
-		return new Client(userPasswordTuple, endPoint);
+	protected void setClientFactory(ClientFactory clientFactory) {
+		this.clientFactory = clientFactory;
 	}
 
 	protected Host openNebulaHostToGreenSitterHost(
@@ -51,22 +43,10 @@ public class OpenNebulaInfoPlugin implements CloudInfoPlugin {
 				datew.getTime(), availableCPU, availableRAM);
 	}
 
-	protected HostPool initializeHostPool() {
-		Client oneClient;
-		try {
-			oneClient = createOneClient();
-			HostPool hostPool = new HostPool(oneClient);
-			return hostPool;
-		} catch (ClientConfigurationException e) {
-			LOGGER.fatal("Authentication failed", e);
-		}
-		return null;
-	}
-
 	@Override
 	public List<? extends Host> getHostInformation() {
 		List<Host> greenSitterHosts = new LinkedList<Host>();
-		HostPool hostPool = initializeHostPool();
+		HostPool hostPool = clientFactory.initializeHostPool();
 		if (hostPool != null) {
 			hostPool.info();
 			for (int i = 0; i < hostPool.getLength(); i++) {
